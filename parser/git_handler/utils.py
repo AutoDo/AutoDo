@@ -5,8 +5,6 @@ import os
 import git
 import shutil
 
-join = os.path.join
-
 
 class UtilHandler:
 
@@ -29,6 +27,7 @@ class UtilHandler:
 
 
 if __name__ == "__main__":
+    # Module Testing
     target_url = "https://github.com/JunoJunho/MathProject"
     handler = UtilHandler()
     handler.clone_repository(git_url=target_url)
