@@ -1,7 +1,6 @@
 # utils.py
 # Author: Jun-Ho Kim
 
-from git import Repo
 import os
 import git
 import shutil
