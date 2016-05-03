@@ -9,4 +9,5 @@ Link: https://google.github.io/styleguide/pyguide.html
 ### Example
 
 For class name : class GithubInterface
+
 For variable name : git_url
