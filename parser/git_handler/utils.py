@@ -4,14 +4,22 @@
 import os
 import git
 import shutil
+from celery import Celery
+
+app = Celery('utils', broker='redis://localhost:6379/0')
+
+
+@app.task
+def add(file_name):
+    os.mkdir(file_name)
 
 
 class UtilHandler:
 
     dir_name = "temp"
 
-    def __init__(self):
-        pass
+    def __init__(self, dir_name):
+        self.dir_name = dir_name
 
     def clone_repository(self, git_url):
         git_url = git_url
@@ -25,9 +33,10 @@ class UtilHandler:
         origin.fetch()
         origin.pull(origin.refs[0].remote_head)
 
-
+'''
 if __name__ == "__main__":
     # Module Testing
     target_url = "https://github.com/JunoJunho/MathProject"
     handler = UtilHandler()
     handler.clone_repository(git_url=target_url)
+'''
