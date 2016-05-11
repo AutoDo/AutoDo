@@ -13,15 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-
-from django.conf.urls import *
+from django.conf.urls import url, include
 from django.contrib import admin
 from AutoDo import views
 
 admin.autodiscover()
 
+
 urlpatterns = [
-    url(r'^$', views.index),
-    url(r'^admin/', admin.site.urls),
-    url(r'access_token/$', views.token),
+    url(r'^$', include('AutoDoApp.urls')),
+    #url(r'^admin/', admin.site.urls),
+    url(r'', include('AutoDoApp.urls')),
 ]

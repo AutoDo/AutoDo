@@ -1,7 +1,12 @@
-__author__ = 'user'
 
-from django.conf.urls import *
+from django.conf.urls import url
+
+from . import views
 
 urlpatterns = [
-    url(r'(?P<band_id>\d+)/$', 'AutoDoApp.views.band'),
+    url(r'^$', views.index, name='index'),
+    url(r'callback/', views.oauth_callback, name='callback'),
+    url(r'^(?P<access_token>[\w\-]+)/$', views.index, name='index'),
+
+
 ]
