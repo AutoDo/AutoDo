@@ -1,0 +1,14 @@
+.wrap {
+    width: 960px;
+    margin: 0 auto;
+
+}
+
+.footer{
+    height: 150px;
+    background-color: black;
+}
+h1 {
+    color: red;
+
+}
