@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+    <div id="myModal" class="modal fade modal-sm" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Info</h4>
+                </div>
+                <div class="modal-body">
+                    <p>정상적으로 투표되었습니다.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<p>Hot Opinion Main Page {{ total }} Total Pages {{ paginate.pages }}</p>
+
+    <div class="panel-group " id="accordion" role="tablist" aria-multiselectable="false">
+        {% for poll in paginate.items %}
+            <div class="panel panel-default" id="collapse_top_div">
+                <div class="panel-heading" role="tab" id={{ "heading_poll" + poll.id|string() }}>
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href= {{ "#collapse_poll" + poll.id|string() }} aria-expanded="false" aria-controls={{ "collapse_poll" + poll.id|string() }}>
+                            {{ poll.subject }}
+                        </a>
+                    </h4>
+                </div>
+                <div id= {{ "collapse_poll" + poll.id|string() }} class="panel-collapse collapse" role="tabpanel" aria-labelledby={{ "heading_poll" + poll.id|string() }} value={{ poll.total_participant }}>
+                    <div class="panel-body">
+                        {{ poll.question_statement }}
+                    </div>
+                    <ul class="list-group answer">
+                        {% for answer in poll.questions %}
+                                <a href="#" value={{ answer.selected_num }} class="list-group-item" onclick="return vote_poll({{ poll.id }},{{ answer.id }})">{{ answer.choice_num }}. {{ answer.answer_description }}</a>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <br/>
+    <input class="btn btn-default" type="button" id="btn_load_more" value="Load More" style="display: none">
+
+    <script type="text/javascript">
+        var curr_page = 1;
+        var total_page = {{ paginate.pages }};
+        var page_per_pagination = {{ num_of_pages_per_pagination }};
+
+        $(document).ready(function(){
+            var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $("a.list-group-item").on('click', function(){
+                $("#myModal").modal('show');
+            });
+
+            if({{ total }} > page_per_pagination)
+            {
+                $("#btn_load_more").css('display', 'block');
+            }
+
+            $("#btn_load_more").click(function(){
+                load_more_poll();
+            });
+
+        });
+
+        function vote_poll(poll_id, choice_id){
+            $.ajax({
+                url: '/vote',
+                type: 'POST',
+                data: JSON.stringify({
+                    poll_id : poll_id,
+                    choice_id : choice_id
+                }),
+                success: function(response){
+                    var poll_id = response.poll_id;
+                    var filters=[{"name": "id", "op": "eq", "val": poll_id*1}];
+                    $.ajax({
+                        url: '/api/poll',
+                        data: {"q" : JSON.stringify({"filters": filters})},
+                        success: function(json_data){
+                            update_poll_answers(poll_id, json_data);
+                        },
+                        error: function(error){
+{#                            console.log(error);#}
+                        },
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8"
+                    });
+                },
+                error: function(error){
+{#                    console.log(error);#}
+                },
+                dataType: "json",
+                contentType: "application/json"
+            });
+{#            var answer_list = $("div.panel-collapse.in");#}
+{#            console.log(answer_list.find(".list-group").children());#}
+        }
+
+        function load_more_poll(){
+            if(curr_page == total_page) return false;
+            $.ajax({
+                url: '/api/poll',
+                data: {"page" : curr_page+1},
+                success: handle_json_poll,
+                error: function(error){
+                    console.log(error);
+                },
+                dataType: "json",
+                contentType: "application/json; charset=utf-8"
+            });
+            $('body').on('click',"a.list-group-item", function(){
+                $("#myModal").modal('show');
+            });
+        }
+
+        function handle_json_poll(json_data){
+            curr_page += 1;
+            var num_of_results = json_data.objects.length;
+            for( var i = 0; i<num_of_results; i++){ // Poll level
+                var poll_id = json_data.objects[i].id;
+                var title = json_data.objects[i].subject;
+                var description = json_data.objects[i].question_statement;
+                var div_item = make_poll_collapse(poll_id, title, description);
+                make_poll_answers(poll_id, json_data.objects[i].questions, div_item);
+                $("#accordion").append(div_item);
+            }
+        }
+
+        function make_poll_collapse(poll_id, title, description){
+            var heading_poll_id = "heading_poll" + poll_id;
+            var collapse_poll_id = "collapse_poll" + poll_id;
+            var sharp_collapse_poll_id = "#collapse_poll" + poll_id;
+            var div_item = $("#collapse_top_div").clone();
+
+            div_item.find(".panel-heading").attr("id", heading_poll_id);
+            div_item.find("a.collapsed").attr("href", sharp_collapse_poll_id);
+            div_item.find("a.collapsed").attr("aria-controls", collapse_poll_id);
+            div_item.find("a.collapsed").text(title); // Poll Subject
+            div_item.find(".panel-collapse").attr("id", collapse_poll_id);
+            div_item.find(".panel-collapse").attr("aria-labelledby", heading_poll_id);
+            div_item.find(".panel-body").text(description); // Poll Contents
+            div_item.find("a.list-group-item").remove();
+
+            return div_item;
+        }
+
+        function make_poll_answers(poll_id, answer_obj, div_item){
+            var num_questions = answer_obj.length;
+            for(var i=0; i<num_questions; i++){
+                var answer_id = (i+1).toString();
+                var li_str = "<a href=\"#\" class=\"list-group-item\" onclick=\"return vote_poll(" + poll_id +"," + answer_obj[i].id +")\">" + answer_id + ". " + answer_obj[i].answer_description+"</a>";
+                div_item.find(".list-group").append(li_str);
+            }
+        }
+
+        function update_poll_answers(poll_id, json_data){
+            var poll = json_data.objects[0];
+            var total_participant = poll.total_participant;
+            var answer_list = poll.questions;
+            var answer_div = $("div.panel-collapse.in");
+            answer_div.find(".list-group.answer a.list-group-item").remove();
+            for (var i=0; i<answer_list.length; i++){
+                var li_str = "<a href=\"#\" class=\"list-group-item\" onclick=\"return vote_poll(" + poll_id +"," + answer_list[i].id +")\">" + (i+1).toString() + ". " + answer_list[i].answer_description + " (" + answer_list[i].selected_num + "/" + total_participant +")" + "</a>";
+                answer_div.find(".list-group").append(li_str);
+            }
+        }
+    </script>
+
+{% endblock %}

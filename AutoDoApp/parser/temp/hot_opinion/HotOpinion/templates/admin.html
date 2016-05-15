@@ -1,0 +1,130 @@
+{% extends "admin_layout.html" %}
+
+{% block content %}
+<div class="btn-group" role="group" aria-label="...">
+    <button type="button" class="btn btn-default" id="create_poll">설문 만들기</button>
+    <button type="button" class="btn btn-default" id="cancel_make_poll" style="display: none">취소</button>
+</div>
+
+    <div id="myModal" class="modal fade modal-sm" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Info</h4>
+                </div>
+                <div class="modal-body">
+                    <p>양식을 모두 채워주세요.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="poll_pane" style="display : none">
+    <form id="poll_pane_form" role="form" action="/add_poll" method="POST">
+
+        <div class="form-group">
+            <label for="poll_subject">설문 제목</label>
+            <input name="poll_subject" type="text" class="form-control" id="poll_subject" placeholder="제목을 입력해주세요.">
+        </div>
+
+        <div class="form-group">
+            <label for="poll_description">설문 내용</label>
+            <textarea name="poll_description" class="form-control" id="poll_description" rows="3" placeholder="내용을 입력해주세요." ></textarea>
+        </div>
+
+        <div class="form-group" id="poll_form1">
+            <label for="poll_answer1">1 </label>
+            <input name="poll_answer1" type="text" class="form-control" id="poll_answer1" placeholder="답변을 지정해 주세요.">
+        </div>
+        <div class="form-group" id="poll_form2">
+            <label for="poll_answer2">2 </label>
+            <input name="poll_answer2" type="text" class="form-control" id="poll_answer2" placeholder="답변을 지정해 주세요.">
+        </div>
+
+        <div class="form-group" id="poll_form3" style="display: none">
+            <label for="poll_answer3">3 </label>
+            <input name="poll_answer3" type="text" class="form-control" id="poll_answer3" placeholder="답변을 지정해 주세요.">
+        </div>
+
+        <div class="form-group" id="poll_form4" style="display: none">
+            <label for="poll_answer4">4 </label>
+            <input name="poll_answer4" type="text" class="form-control" id="poll_answer4" placeholder="답변을 지정해 주세요.">
+        </div>
+
+        <div class="form-group" id="poll_form5" style="display: none">
+            <label for="poll_answer5">5 </label>
+            <input name="poll_answer5" type="text" class="form-control" id="poll_answer5" placeholder="답변을 지정해 주세요.">
+        </div>
+
+        <input class="btn btn-default" type="button" id="poll_add_answer" value="답변 추가 하기">
+        <input class="btn btn-default" type="button" id="poll_remove_answer" value="답변 삭제 하기">
+        <div class="form-group" id="poll_num_answers" style="display: none">
+            <input name="num_answers" type="text" id="num_answers" value=2>
+        </div>
+        <button type="submit" class="btn btn-primary">저장하기</button>
+        <div class="alert alert-danger" role="alert" id="poll_add_answer_alert" style="display: none">더 이상 답변을 추가할 수 없습니다.</div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /> <!-- For CSRF Token Protection -->
+    </form>
+</div>
+
+
+<script type=text/javascript>
+    $(document).ready(function(){
+        var num_answers = 2;
+        $("#create_poll").click(function(){
+            num_answers = 2;
+            $("#num_answers").val(2);
+            $("#cancel_make_poll").toggle();
+            $("#poll_pane").toggle();
+        });
+
+        $("#poll_add_answer").click(function(){
+            if(num_answers == 5){
+                $("#poll_add_answer_alert").toggle();
+                setTimeout(function(){
+                    $("#poll_add_answer_alert").fadeOut();
+                }, 3000);
+                return;
+            }
+            num_answers += 1;
+            $("#poll_form"+num_answers).show();
+            $("#num_answers").val(num_answers);
+        });
+
+        $("#poll_remove_answer").click(function(){
+            if(num_answers > 2){
+                $("#poll_answer"+num_answers).val("");
+                $("#poll_form"+num_answers).toggle();
+                num_answers -= 1;
+                $("#num_answers").val(num_answers);
+            }
+        })
+
+        $("#cancel_make_poll").click(function(){
+            $("#cancel_make_poll").toggle();
+            $("#poll_pane").toggle();
+        });
+
+        $("form").on("submit", function(){
+
+            for(var i=1; i <= num_answers; i++){
+                if(!$("#poll_answer"+i).val()){
+                    $("#myModal").modal('show');
+                    return false;
+                }
+            }
+            if(!$("#poll_subject").val() || !$("#poll_description").val()){
+                $("#myModal").modal('show');
+                return false;
+            }
+
+        });
+    });
+
+</script>
+{% endblock %}

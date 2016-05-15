@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login</title>
+<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/content/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/content/site.css" />
+    <script src="/static/scripts/modernizr-2.6.2.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+</head>
+<body>
+<div id="fb-root"></div>
+<script>
+    function statusChangeCallback(response) {
+        if (response.status === 'connected') {
+          testAPI();
+        } else if (response.status === 'not_authorized') {
+            console.log("No Auth");
+            login();
+        } else {
+            login();
+        }
+    }
+
+    function login(){
+        console.log("Before login");
+        FB.login(function(response) {
+            if(response.status == 'connected'){
+                testAPI();
+            }
+        }, {scope: 'public_profile,email'});
+    }
+
+    function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+          statusChangeCallback(response);
+        });
+    }
+
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v2.5&appId=872475326201689";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function testAPI() {
+        FB.api('/me', {fields: 'name, email'}, function(response) {
+            console.log(JSON.stringify(response));
+            document.getElementById('status').innerHTML =
+            'Thanks for logging in, ' + response.name + '!';
+        });
+    }
+
+    $(document).ready(function(){
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '872475326201689',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v2.5'
+            });
+            checkLoginState();
+        };
+    });
+
+</script>
+
+<div class="fb-login-button" scope="public_profile,email" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="true" onlogin="checkLoginState()"></div>
+<button onclick="return checkLoginState()" value="Facebook Login"></button>
+<div id="status">
+</div>
+
+</body>
+</html>
