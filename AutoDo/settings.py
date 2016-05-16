@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+CSRF_FAILURE_VIEW = 'AutoDoApp.views.csrf_failure'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
