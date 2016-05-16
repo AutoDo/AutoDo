@@ -12,6 +12,8 @@ class Parser(ParserCommunicator):
         self.tmp_dir = "temp"
         self.dir_dict = {}
         self.class_dict = {}  # key: full path file_name, value: a list containing class names
+        self.method_dict = {}  # key: class name, value: a list containing method names defined in the class
+        self.instance_dict = {}  # key: class name, value: a list containing instance names inside the class
 
     def task_request(self, project_id, user_id):
         raise NotImplementedError("Implement this method!")
@@ -78,6 +80,7 @@ class Parser(ParserCommunicator):
         f = codecs.open(path, mode='r', encoding='utf-8')
         class_list = []
         lines = f.readlines()
+        # Path1: traverse class name
         for line in lines:
             line = line.strip()
             if not line.startswith("class"):
@@ -86,12 +89,23 @@ class Parser(ParserCommunicator):
                 tokens = line.split("class")
                 cls_name = tokens[1].strip()
                 cls_name = cls_name.replace(":", "")
-                print("\tFound class: " + cls_name)
+                #print("\tFound class: " + cls_name)
                 class_list.append(cls_name)
         if len(class_list) > 0:
             self.class_dict[path] = class_list
 
-
+        # Path2: traverse method name and instance variable
+        instance_list = []
+        method_list = []
+        for line in lines:
+            line = line.strip()
+            if not line.startswith("def"):
+                continue
+            else:
+                tokens = line.split("def")
+                method_name = tokens[1].strip()
+                method_name = method_name.replace(":", "")
+                print("\tFound method: " + method_name)
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
