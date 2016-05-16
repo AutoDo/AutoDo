@@ -1,6 +1,7 @@
 # This module file is for parsing the github project.
 from AutoDoApp.parser.ParserCommunicator import ParserCommunicator
 import os
+import codecs
 import git
 import shutil
 
@@ -10,6 +11,7 @@ class Parser(ParserCommunicator):
     def __init__(self):
         self.tmp_dir = "temp"
         self.dir_dict = {}
+        self.class_dict = {}  # key: full path file_name, value: a list containing class names
 
     def task_request(self, project_id, user_id):
         raise NotImplementedError("Implement this method!")
@@ -29,6 +31,7 @@ class Parser(ParserCommunicator):
     def parse_project(self, git_url):
         self.__clone_repository(git_url=git_url)
         self.__parse_directory_structure()
+        self.__traverse_directories()
 
     def __clone_repository(self, git_url):
         git_url = git_url
@@ -55,11 +58,40 @@ class Parser(ParserCommunicator):
                 if f_name[-3:] == ".py":
                     tmp_list.append(f_name)
             if len(tmp_list) > 0:  # We will not add empty directory into the dictionary
+                dir_name = dir_name.replace("\\", "/")
                 self.dir_dict[dir_name] = tmp_list
+
+    def __traverse_directories(self):
+        # To traverse each source file, searching directories
         for key in self.dir_dict:
             print("Directory found: " + key)
             for item in self.dir_dict[key]:
-                print("\t" + item)
+                if key.endswith("/"):
+                    path = key + item
+                else:
+                    path = key + "/" + item
+                self.__traverse_source_file(path=path)
+
+    def __traverse_source_file(self, path):
+        # traverse each python file
+        print("Full path: " + path)
+        f = codecs.open(path, mode='r', encoding='utf-8')
+        class_list = []
+        lines = f.readlines()
+        for line in lines:
+            line = line.strip()
+            if not line.startswith("class"):
+                continue
+            else:
+                tokens = line.split("class")
+                cls_name = tokens[1].strip()
+                cls_name = cls_name.replace(":", "")
+                print("\tFound class: " + cls_name)
+                class_list.append(cls_name)
+        if len(class_list) > 0:
+            self.class_dict[path] = class_list
+
+
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
@@ -69,6 +101,7 @@ class Parser(ParserCommunicator):
 
     def test(self):
         self.__parse_directory_structure()
+        self.__traverse_directories()
 
 
 if __name__ == "__main__":
