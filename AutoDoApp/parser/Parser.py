@@ -89,7 +89,7 @@ class Parser(ParserCommunicator):
                 tokens = line.split("class")
                 cls_name = tokens[1].strip()
                 cls_name = cls_name.replace(":", "")
-                #print("\tFound class: " + cls_name)
+                print("\tFound class: " + cls_name)
                 class_list.append(cls_name)
         if len(class_list) > 0:
             self.class_dict[path] = class_list
@@ -97,8 +97,13 @@ class Parser(ParserCommunicator):
         # Path2: traverse method name and instance variable
         instance_list = []
         method_list = []
+        cur_context = ""
         for line in lines:
             line = line.strip()
+            if line.startswith("class"):
+                tokens = line.split("class")
+                cur_context = tokens[1].strip()
+                cur_context = cur_context.replace(":", "")
             if not line.startswith("def"):
                 continue
             else:
