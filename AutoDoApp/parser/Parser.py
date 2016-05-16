@@ -9,6 +9,7 @@ class Parser(ParserCommunicator):
 
     def __init__(self):
         self.tmp_dir = "temp"
+        self.dir_dict = {}
 
     def task_request(self, project_id, user_id):
         raise NotImplementedError("Implement this method!")
@@ -44,7 +45,6 @@ class Parser(ParserCommunicator):
     def __parse_directory_structure(self):
         # Root directory setup
         root_dir = self.tmp_dir + "/hot_opinion/"
-        dir_dict = {}
         # Traverse each directory to parse sub-directories and their files
         for dir_name, subdir_list, file_list in os.walk(root_dir):
             r_index = dir_name.rfind("/")
@@ -54,7 +54,7 @@ class Parser(ParserCommunicator):
             print("Directory found: " + dir_name)
             for f_name in file_list:
                 tmp_list.append(f_name)
-            dir_dict[dir_name] = tmp_list
+            self.dir_dict[dir_name] = tmp_list
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
