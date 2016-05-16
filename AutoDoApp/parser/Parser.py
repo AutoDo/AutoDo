@@ -51,10 +51,15 @@ class Parser(ParserCommunicator):
             if dir_name.startswith(".", r_index+1) or dir_name.startswith("_", r_index+1):
                 continue
             tmp_list = []
-            print("Directory found: " + dir_name)
-            for f_name in file_list:
-                tmp_list.append(f_name)
-            self.dir_dict[dir_name] = tmp_list
+            for f_name in file_list:  # Check suffix of python project
+                if f_name[-3:] == ".py":
+                    tmp_list.append(f_name)
+            if len(tmp_list) > 0:  # We will not add empty directory into the dictionary
+                self.dir_dict[dir_name] = tmp_list
+        for key in self.dir_dict:
+            print("Directory found: " + key)
+            for item in self.dir_dict[key]:
+                print("\t" + item)
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
