@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'AutoDoApp',
+    'github_hook',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -60,7 +61,6 @@ GITHUB_EXTENDED_PERMISSIONS = ['email']
 LOGIN_REDIRECT_URL = 'index.html'
 
 AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.github.GithubBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
