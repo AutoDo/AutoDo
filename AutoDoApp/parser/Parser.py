@@ -42,12 +42,19 @@ class Parser(ParserCommunicator):
         origin.pull(origin.refs[0].remote_head)
 
     def __parse_directory_structure(self):
+        # Root directory setup
         root_dir = self.tmp_dir + "/hot_opinion/"
-        print("Dir " + root_dir)
+        dir_dict = {}
+        # Traverse each directory to parse sub-directories and their files
         for dir_name, subdir_list, file_list in os.walk(root_dir):
-            print('Found directory: %s' % dir_name)
+            r_index = dir_name.rfind("/")
+            if dir_name.startswith(".", r_index+1) or dir_name.startswith("_", r_index+1):
+                continue
+            tmp_list = []
+            print("Directory found: " + dir_name)
             for f_name in file_list:
-                print('\t%s' % f_name)
+                tmp_list.append(f_name)
+            dir_dict[dir_name] = tmp_list
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
