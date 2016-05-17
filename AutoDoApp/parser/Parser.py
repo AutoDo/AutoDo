@@ -50,7 +50,7 @@ class Parser(ParserCommunicator):
 
     def __parse_directory_structure(self):
         # Root directory setup
-        root_dir = self.tmp_dir + "/hot_opinion/"
+        root_dir = self.tmp_dir + "/test_app/"
         # Traverse each directory to parse sub-directories and their files
         for dir_name, subdir_list, file_list in os.walk(root_dir):
             r_index = dir_name.rfind("/")
@@ -72,7 +72,7 @@ class Parser(ParserCommunicator):
                     path = key + item
                 else:
                     path = key + "/" + item
-                    self.file_list.append(path)
+                self.file_list.append(path)
         for path in self.file_list:
             self.__traverse_source_file_path1(path=path)
         for path in self.file_list:
@@ -157,7 +157,20 @@ class Parser(ParserCommunicator):
 
         # Path 3-1: travers source file to parse invoked method list
         for line in lines:
-            pass
+            line = line.strip()
+            if "." in line:  # something.method
+                tokens = line.split(".")
+                if tokens[0] == "self":  # self.something.method
+                    pass
+                elif "=" in line:  # something = self.something.method or something.method
+                    r_tokens = line.split("=")
+                    if "self" in r_tokens:
+                        pass
+                    else:
+                        pass
+                else:  # something.method
+                    pass
+
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
