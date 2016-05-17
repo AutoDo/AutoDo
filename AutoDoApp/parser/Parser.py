@@ -122,6 +122,7 @@ class Parser(ParserCommunicator):
         f = codecs.open(path, mode='r', encoding='utf-8')
         lines = f.readlines()
         # Path3: traverse source file to parse instance variables and its call relationships
+        # traverse information is stored at self.instance_dict.
         # Structure: first dict : {class name : second_dict}
         #            second dict : {instance_variable : invoked method list}
         invoked_method_dict = {}
@@ -148,15 +149,15 @@ class Parser(ParserCommunicator):
                             left_side = tokens[0].strip()
                             if 'class' not in cur_context:
                                 if 'None' not in self.instance_dict:
-                                    self.instance_dict['None'] = [left_side]
-                                else:
-                                    self.instance_dict['None'].append(left_side)
+                                    self.instance_dict['None'] = {left_side: []}
                             else:
                                 cls_name = cur_context['class']
                                 if cls_name not in self.instance_dict:
-                                    self.instance_dict[cls_name] = [left_side]
-                                else:
-                                    self.instance_dict[cls_name].append(left_side)
+                                    self.instance_dict[cls_name] = {left_side: []}
+
+        # Path 3-1: travers source file to parse invoked method list
+        for line in lines:
+            pass
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
