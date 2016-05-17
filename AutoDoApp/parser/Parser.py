@@ -44,8 +44,7 @@ class Parser(ParserCommunicator):
                 for invoked_method in self.instance_dict[instance_name]:
                     graph.append((caller_class_name, callee_class_name, invoked_method))
 
-        for each_tuple in graph:
-            print(each_tuple)
+        print(graph)
 
         return graph
 
