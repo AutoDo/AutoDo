@@ -147,15 +147,11 @@ class Parser(ParserCommunicator):
                         if revised_key == right_side:
                             left_side = tokens[0].strip()
                             if 'class' not in cur_context:
-                                print("Matches: " + revised_key + " Instance: " +
-                                      left_side + " in None class of " + method_name)
                                 if 'None' not in self.instance_dict:
                                     self.instance_dict['None'] = [left_side]
                                 else:
                                     self.instance_dict['None'].append(left_side)
                             else:
-                                print("Matches: " + revised_key + " Instance: " +
-                                      left_side + " in " + cur_context['class'] + " of " + method_name)
                                 cls_name = cur_context['class']
                                 if cls_name not in self.instance_dict:
                                     self.instance_dict[cls_name] = [left_side]
