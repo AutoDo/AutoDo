@@ -33,9 +33,20 @@ class Parser(ParserCommunicator):
         raise NotImplementedError("Implement this method!")
 
     def parse_project(self, git_url):
-        self.__clone_repository(git_url=git_url)
+        #self.__clone_repository(git_url=git_url)
         self.__parse_directory_structure()
         self.__traverse_directories()
+
+        # Output formatting
+        graph = []
+        for callee_class_name in self.variable_dict:
+            for caller_class_name, instance_name in self.variable_dict[callee_class_name]:
+                for invoked_method in self.instance_dict[instance_name]:
+                    graph.append((caller_class_name, callee_class_name, invoked_method))
+
+        for each_tuple in graph:
+            print(each_tuple)
+
 
     def __clone_repository(self, git_url):
         git_url = git_url
@@ -141,9 +152,9 @@ class Parser(ParserCommunicator):
                     method_name = tokens[1].split("(")[0]
                 if 'method_name' in locals():  # At least method call
                     if instance_name not in self.instance_dict:
-                        self.instance_dict[instance_name] = [method_name]
+                        self.instance_dict[instance_name] = [method_name+tokens[1]]
                     else:
-                        self.instance_dict[instance_name].append(method_name)
+                        self.instance_dict[instance_name].append(method_name+tokens[1])
             elif "(" in line and "=" in line:  # Possible to instance creation
                 tokens = line.split("=")
                 instance_name = tokens[0].strip()
@@ -170,9 +181,7 @@ class Parser(ParserCommunicator):
         raise NotImplementedError("Implement this method!")
 
     def test(self):
-        self.__parse_directory_structure()
-        self.__traverse_directories()
-        print()
+        self.parse_project("https")
 
 
 if __name__ == "__main__":
