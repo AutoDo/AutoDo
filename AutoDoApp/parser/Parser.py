@@ -152,10 +152,16 @@ class Parser(ParserCommunicator):
                     if len(tokens) > 1:
                         instance_type = tokens[0].strip()
                         for files in self.class_dict:
-                            for cls_name in self.class_dict[files]:
-                                if cls_name.split("(")[0] == instance_type:
+                            for class_name in self.class_dict[files]:
+                                if class_name.split("(")[0] == instance_type:
                                     if instance_type not in self.variable_dict:
-                                        self.variable_dict[instance_type] = [instance_name]  # Callee class
+                                        self.variable_dict[instance_type] = [(cls_name, instance_name)]  # Callee class
+                                    else:
+                                        self.variable_dict[instance_type].append((cls_name, instance_name))
+            elif "class" in line:
+                tokens = line.split("class")
+                cls_name = tokens[1].strip()
+                cls_name = cls_name.replace(":", "")
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
