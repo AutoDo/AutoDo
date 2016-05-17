@@ -124,7 +124,6 @@ class Parser(ParserCommunicator):
         # Path3: traverse source file to parse instance variables and its call relationships
         # Structure: first dict : {class name : second_dict}
         #            second dict : {instance_variable : invoked method list}
-        instance_list = []
         invoked_method_dict = {}
         cur_context = {}
         for line in lines:
@@ -150,9 +149,18 @@ class Parser(ParserCommunicator):
                             if 'class' not in cur_context:
                                 print("Matches: " + revised_key + " Instance: " +
                                       left_side + " in None class of " + method_name)
+                                if 'None' not in self.instance_dict:
+                                    self.instance_dict['None'] = [left_side]
+                                else:
+                                    self.instance_dict['None'].append(left_side)
                             else:
                                 print("Matches: " + revised_key + " Instance: " +
                                       left_side + " in " + cur_context['class'] + " of " + method_name)
+                                cls_name = cur_context['class']
+                                if cls_name not in self.instance_dict:
+                                    self.instance_dict[cls_name] = [left_side]
+                                else:
+                                    self.instance_dict[cls_name].append(left_side)
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
