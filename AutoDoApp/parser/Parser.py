@@ -47,6 +47,7 @@ class Parser(ParserCommunicator):
         for each_tuple in graph:
             print(each_tuple)
 
+        return graph
 
     def __clone_repository(self, git_url):
         git_url = git_url
