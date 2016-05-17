@@ -1,1 +1,1 @@
-__author__ = 'user'
+from AutoDoApp.parser.ParserCommunicator import ParserCommunicator
