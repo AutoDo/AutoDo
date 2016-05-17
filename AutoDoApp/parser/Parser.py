@@ -14,6 +14,7 @@ class Parser(ParserCommunicator):
         self.class_dict = {}  # key: full path file_name, value: a list containing class names
         self.method_dict = {}  # key: class name, value: a list containing method names defined in the class
         self.instance_dict = {}  # key: class name, value: a list containing instance names inside the class
+        self.variable_dict = {}  # key: instance name, value : a list containing invoked methods
         self.file_list = []
 
     def task_request(self, project_id, user_id):
@@ -127,50 +128,34 @@ class Parser(ParserCommunicator):
         #            second dict : {instance_variable : invoked method list}
         invoked_method_dict = {}
         cur_context = {}
+        cls_name = ""
         for line in lines:
             line = line.strip()
-            if line.startswith("class"):
-                tokens = line.split("class")
-                cls_name = tokens[1].strip()
-                cls_name = cls_name.replace(":", "")
-                cur_context['class'] = cls_name
-            elif line.startswith("def"):
-                tokens = line.split("def")
-                method_name = tokens[1].strip()
-                method_name = method_name.replace(":", "")
-                cur_context['method'] = method_name
-            elif "=" in line and "(" in line:  # Some instance variable is assigned
-                tokens = line.split("=")
-                right_side = tokens[1].strip().split("(")[0]
-                for key in self.class_dict:
-                    for class_name in self.class_dict[key]:
-                        revised_key = class_name.split("(")[0]
-                        if revised_key == right_side:
-                            left_side = tokens[0].strip()
-                            if 'class' not in cur_context:
-                                if 'None' not in self.instance_dict:
-                                    self.instance_dict['None'] = {left_side: []}
-                            else:
-                                cls_name = cur_context['class']
-                                if cls_name not in self.instance_dict:
-                                    self.instance_dict[cls_name] = {left_side: []}
-
-        # Path 3-1: travers source file to parse invoked method list
-        for line in lines:
-            line = line.strip()
-            if "." in line:  # something.method
+            if "." in line and "(" in line:  # Just method call
                 tokens = line.split(".")
-                if tokens[0] == "self":  # self.something.method
-                    pass
-                elif "=" in line:  # something = self.something.method or something.method
-                    r_tokens = line.split("=")
-                    if "self" in r_tokens:
-                        pass
+                instance_name = tokens[0]
+                if len(tokens) > 1 and "." in tokens[1]:
+                    method_name = tokens[1].split(".")[0].strip()
+                    method_name = method_name.split("(")[0]
+                elif len(tokens) > 1:
+                    method_name = tokens[1].split("(")[0]
+                if 'method_name' in locals():  # At least method call
+                    if instance_name not in self.instance_dict:
+                        self.instance_dict[instance_name] = [method_name]
                     else:
-                        pass
-                else:  # something.method
-                    pass
-
+                        self.instance_dict[instance_name].append(method_name)
+            elif "(" in line and "=" in line:  # Possible to instance creation
+                tokens = line.split("=")
+                instance_name = tokens[0].strip()
+                if len(tokens) > 1:
+                    tokens = tokens[1].split("(")
+                    if len(tokens) > 1:
+                        instance_type = tokens[0].strip()
+                        for files in self.class_dict:
+                            for cls_name in self.class_dict[files]:
+                                if cls_name.split("(")[0] == instance_type:
+                                    if instance_type not in self.variable_dict:
+                                        self.variable_dict[instance_type] = [instance_name]  # Callee class
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")
@@ -181,6 +166,7 @@ class Parser(ParserCommunicator):
     def test(self):
         self.__parse_directory_structure()
         self.__traverse_directories()
+        print()
 
 
 if __name__ == "__main__":
