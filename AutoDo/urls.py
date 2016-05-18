@@ -20,9 +20,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = [
-    #url(r'^$', include('AutoDoApp.urls')),
     url(r'^admin/', admin.site.urls),
-    #url(r'hook/', include('github_hook.urls')),
     url(r'', include('AutoDoApp.urls')),
 
 ]
