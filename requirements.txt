@@ -16,3 +16,5 @@ redis==2.10.5
 simplegeneric==0.8.1
 smmap==0.9.0
 traitlets==4.2.1
+pydotplus==2.0.2
+pyparsing==2.1.4

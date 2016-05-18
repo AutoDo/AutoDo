@@ -11,8 +11,3 @@ def index(request):
 def token(request):
     token = request.GET['access_token']
     return render_to_response('index.html', {}, RequestContext(request))
-
-def register(request):
-    form = RegisterForm()
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
