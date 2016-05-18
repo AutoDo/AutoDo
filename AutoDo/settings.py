@@ -29,7 +29,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-CSRF_FAILURE_VIEW = 'AutoDoApp.views.csrf_failure'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,11 +41,13 @@ INSTALLED_APPS = [
     'github_hook',
 ]
 
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfResponseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -60,6 +61,13 @@ GITHUB_OAUTH_CLIENT_ID=''
 GITHUB_OAUTH_CLIENT_SECRET=''
 GITHUB_EXTENDED_PERMISSIONS = ['email']
 LOGIN_REDIRECT_URL = 'index.html'
+
+# CSRF SETTING
+
+#CSRF_FAILURE_VIEW = 'AutoDoApp.views.csrf_failure'
+
+#CSRF_COOKIE_SECURE = False
+#CSRF_COOKIE_HTTPONLY = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -145,7 +153,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.request',
+                #'django.core.context_processors.request',
             ],
         },
     },
