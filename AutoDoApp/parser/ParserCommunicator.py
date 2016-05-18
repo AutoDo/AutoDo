@@ -19,7 +19,7 @@ class ParserCommunicator(object):
     def parse_graph(self):
         raise NotImplementedError("Implement this method!")
 
-    def parse_project(self):
+    def parse_project(self, git_url):
         raise NotImplementedError("Implement this method!")
 
     def prev_parse_project(self):
