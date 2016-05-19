@@ -15,13 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from AutoDo import views
+
 
 admin.autodiscover()
 
-
 urlpatterns = [
-    url(r'^$', include('AutoDoApp.urls')),
-    #url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
     url(r'', include('AutoDoApp.urls')),
+
 ]
