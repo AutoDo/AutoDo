@@ -6,6 +6,8 @@ from django.template import loader
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from .models import GithubInformation
+
 import requests
 
 
@@ -21,39 +23,14 @@ def index(request, access_token=""):
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
-    git_info = email_auth(res)
-    django_db_connect(git_info)
+    github_info_parse(res)
     #create_hook(res)
-    get_hook_list(res, git_info)
+    #get_hook_list(res, git_info)
     #create_pull_request(res, git_info)
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
 
 
-def django_db_connect(git_info):
-    import sqlite3
-    con = sqlite3.connect("AutoDo.db")
-    cursor = con.cursor()
-    #cursor.execute("CREATE TABLE IF NOT EXISTS AutoDo(Email text, ProjectURL text, RepositoryOwner text)")
-    cursor.execute("CREATE TABLE IF NOT EXISTS AutoDo(Email text, ProjectURL text)")
-
-    search_query = "SELECT ProjectURL FROM AutoDo WHERE Email='" + git_info.user_email + "'"
-    cursor.execute(search_query)
-    data = cursor.fetchall()
-    #Insert new user information into AutoDo table
-    if len(data) == 0:
-        print("New user is comming")
-        for item in git_info.url_list:
-            query = "INSERT INTO AutoDo VALUES ('" + git_info.user_email + "', '" + item + "')"
-            cursor.execute(query)
-
-    cursor.execute("SELECT ProjectURL FROM  AutoDo WHERE Email='" + git_info.user_email + "'")
-    list_data = cursor.fetchall()
-    con.commit()
-    return
-
-
-def email_auth(access_token):
-
+def github_info_parse(access_token):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
     str_json = string.json()
@@ -62,14 +39,33 @@ def email_auth(access_token):
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
     repo_json = repo_string.json()
 
-    git_info = GitHubInfo()
-    git_info.email_append(email)
-    for item in repo_json:
-        git_info.url_append(item['html_url'])
-        git_info.owner_append(item['owner']['login'])
+    delete_account = GithubInformation.objects.filter(user_email=email)
+    if not delete_account.__len__() == 0:
+        delete_account.delete()
 
-    get_hook_list(access_token, git_info)
-    return git_info
+    for item in repo_json:
+        query_string = item['url'] + '/branches'
+        string = requests.get(query_string, new_condition)
+        branch_json = string.json()
+        for branch_item in branch_json:
+            query_string = item['url'] + '/branches/' + branch_item['name']
+            string = requests.get(query_string, new_condition)
+            single_branch_json = string.json()
+            print(single_branch_json)
+            for parent_item in single_branch_json['commit']['parents']:
+                print(parent_item)
+                temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
+                                                 , repository_owner=item['owner']['login'],
+                                                 repository_head=single_branch_json['name'], repository_base='master'
+                                                 , parent_branch_sha=parent_item['sha'],
+                                                 tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
+                temp_account.save()
+
+
+def create_commit(access_token):
+    temp_objs = GithubInformation.objects.filter(repository_head__contains="develop")
+    for item in temp_objs:
+        print(item.parent_branch_sha)
 
 
 def get_hook_list(access_token, git_info):
@@ -77,7 +73,6 @@ def get_hook_list(access_token, git_info):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/repos/3kd1000/AutoDo/hooks', new_condition)
     hook_json = string.json()
-    print(hook_json)
 
 
 def post_json(code):
@@ -151,19 +146,3 @@ def hook_callback(request, *args, **kwargs):
     res = json.loads(data)
     return res['repository']['html_url']
 
-
-class GitHubInfo:
-
-    def __init__(self):
-        self.url_list = []
-        self.user_email = ""
-        self.owner_list = []
-
-    def url_append(self, project_url):
-        self.url_list.append(project_url)
-
-    def email_append(self, user_email):
-        self.user_email = user_email
-
-    def owner_append(self, owner_account):
-        self.owner_list.append(owner_account)
