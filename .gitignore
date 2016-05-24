@@ -5,6 +5,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+migreations/*
 
 # C extensions
 *.so
@@ -295,3 +296,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
+AutoDoApp/migrations/
+.idea/

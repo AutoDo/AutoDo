@@ -1,11 +1,13 @@
 
-
+from django.conf import settings
 import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from .models import GithubInformation
+
 import requests
 
 
@@ -13,7 +15,7 @@ def index(request, access_token=""):
     template = loader.get_template('AutoDoApp/index.html')
     context = {
         'access_token': access_token,
-        'client_id': "66c40334092cde4ea3bb",
+        'client_id': settings.GIT_HUB_URL,
     }
     return HttpResponse(template.render(context=context, request=request))
 
@@ -21,39 +23,35 @@ def index(request, access_token=""):
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
-    git_info = email_auth(res)
-    django_db_connect(git_info)
+    request.session['oauth'] = res  # Adding session
+    #github_info_parse(res)
+
+    branch_name = "refs/heads/test_branch5"
+    #create_a_branch(res, branch_name)
+    #create_file_commit(res, branch_name)
     #create_hook(res)
-    get_hook_list(res, git_info)
-    #create_pull_request(res, git_info)
-    return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
+    #get_hook_list(res, git_info)
+    #create_pull_request(res, "test_branch5")
+
+    return HttpResponseRedirect(reverse('integration_test'))
+    #return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
 
 
-def django_db_connect(git_info):
-    import sqlite3
-    con = sqlite3.connect("AutoDo.db")
-    cursor = con.cursor()
-    #cursor.execute("CREATE TABLE IF NOT EXISTS AutoDo(Email text, ProjectURL text, RepositoryOwner text)")
-    cursor.execute("CREATE TABLE IF NOT EXISTS AutoDo(Email text, ProjectURL text)")
-
-    search_query = "SELECT ProjectURL FROM AutoDo WHERE Email='" + git_info.user_email + "'"
-    cursor.execute(search_query)
-    data = cursor.fetchall()
-    #Insert new user information into AutoDo table
-    if len(data) == 0:
-        print("New user is comming")
-        for item in git_info.url_list:
-            query = "INSERT INTO AutoDo VALUES ('" + git_info.user_email + "', '" + item + "')"
-            cursor.execute(query)
-
-    cursor.execute("SELECT ProjectURL FROM  AutoDo WHERE Email='" + git_info.user_email + "'")
-    list_data = cursor.fetchall()
-    con.commit()
-    return
+def integration_test(request):
+    template = loader.get_template('AutoDoApp/integration_test_page.html')
+    request.session['git_url'] = 'https://github.com/JunoJunho/AutoDoTestApp'
+    request.session['project_name'] = "".join(request.session['git_url'].split('/')[-1:])
+    return HttpResponse(template.render(request=request))
 
 
-def email_auth(access_token):
+def integration_process(request):
+    from AutoDoApp.Manager import ManagerThread
+    m = ManagerThread()
+    m.put_request(req=request.session['git_url'])
+    return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
 
+
+def github_info_parse(access_token):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
     str_json = string.json()
@@ -62,30 +60,101 @@ def email_auth(access_token):
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
     repo_json = repo_string.json()
 
-    git_info = GitHubInfo()
-    git_info.email_append(email)
-    for item in repo_json:
-        git_info.url_append(item['html_url'])
-        git_info.owner_append(item['owner']['login'])
+    delete_account = GithubInformation.objects.filter(user_email=email)
+    if not delete_account.__len__() == 0:
+        delete_account.delete()
 
-    get_hook_list(access_token, git_info)
-    return git_info
+    for item in repo_json:
+        query_string = item['url'] + '/branches'
+        string = requests.get(query_string, new_condition)
+        branch_json = string.json()
+        for branch_item in branch_json:
+            query_string = item['url'] + '/branches/' + branch_item['name']
+            string = requests.get(query_string, new_condition)
+            single_branch_json = string.json()
+            print(single_branch_json)
+            for parent_item in single_branch_json['commit']['parents']:
+                print(parent_item)
+                temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
+                                                 , repository_owner=item['owner']['login'],
+                                                 repository_head=single_branch_json['name'], repository_base='master'
+                                                 , parent_branch_sha=parent_item['sha'],
+                                                 tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
+                temp_account.save()
+
+
+def create_a_branch(access_token, branch_name):
+    condition = {"access_token": access_token}
+    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs")  # Variable ##########
+    res = res.json()
+    b_branch_name = ""
+    for item in res:
+        if "master" in item["ref"]:
+            b_branch_name = item['object']['sha']
+            break
+
+    params = {"ref": branch_name,
+              "sha": b_branch_name
+              }
+    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs",  # Variable ############
+                  params=condition,
+                  json=params)
+
+
+def create_file_commit(access_token, branch_name):
+    import base64
+    condition = {"access_token": access_token}
+    readme_token = "/contents/README.md"
+    url = "https://api.github.com/repos/JunoJunho/AutoDoTest"
+    put_url = url + readme_token  # Variable ############
+
+    # 1. Get readme.md
+    readme_name = "/readme"
+    res = requests.get(url + readme_name,  # Variable ############
+                       params=condition)
+    res = res.json()
+    readme_hash_code = res['sha']
+    # Need to be fixed
+    replacing_content = base64.standard_b64encode(str.encode("## This is replaced README file.")).decode('utf-8')
+
+    # 2. setting params
+    params = {  # This needs to be fixed.
+        "message": "This is a test message",
+        "committer":{
+            "name": "Junho Kim",
+            "email": "wnsgh611@gmail.com"
+        },
+        "content": replacing_content,
+        "sha": readme_hash_code,
+        "branch": branch_name
+    }
+
+    # 3. PUT
+    res = requests.put(url=put_url,
+                       params=condition,
+                       json=params)
+    res = res.json()
+    print(res['commit']['sha'])
+
+
+def create_commit(access_token):
+    temp_objs = GithubInformation.objects.filter(repository_head__contains="develop")
+    for item in temp_objs:
+        print(item.parent_branch_sha)
 
 
 def get_hook_list(access_token, git_info):
-    query_string = 'https://api.github.com/repos'
     new_condition = {"access_token": access_token}
-    string = requests.get('https://api.github.com/repos/3kd1000/AutoDo/hooks', new_condition)
+    string = requests.get(settings.GITHUB_API_URL + '/hooks', new_condition)
     hook_json = string.json()
-    print(hook_json)
 
 
 def post_json(code):
     import json
     import urllib.request
 
-    new_conditions = {"client_id": '66c40334092cde4ea3bb',
-                      "client_secret": '24076f838f57319415ed5c5946d59a8bb01ddaa3',
+    new_conditions = {"client_id": settings.GITHUB_OAUTH_CLIENT_ID,
+                      "client_secret": settings.GITHUB_OAUTH_CLIENT_SECRET,
                       "code": code}
     params = json.dumps(new_conditions).encode('utf-8')
     git_api_url = "https://github.com/login/oauth/access_token"
@@ -100,24 +169,18 @@ def post_json(code):
     return access_token
 
 
-def create_pull_request(access_token, project_url):
-    import json
-    import urllib.request
-
-    new_conditions = {"title": 'test',
-                      "body": 'please pull this request',
-                      "head": 'develop',
-                      "base": "master"}
-    params = json.dumps(new_conditions).encode('utf-8')
-    git_api_url = "https://api.github.com/repos/AutoDo/AutoDo/pulls"
-
-    req = urllib.request.Request(git_api_url, params)
-    req.add_header("content-type", "application/json")
-    req.add_header("authorization", "token " + access_token)
-    response = urllib.request.urlopen(req)
-    string = response.read().decode('utf-8')
-    print(string)
-    return 1
+def create_pull_request(access_token, branch_name):
+    condition = {"access_token": access_token}
+    params = {
+        "title": 'test',
+        "body": 'please pull this request',
+        "head": branch_name,
+        "base": "master"
+    }
+    res = requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/pulls",
+                        params=condition,
+                        json=params)
+    print(res)
 
 
 def create_hook(access_token):
@@ -128,13 +191,13 @@ def create_hook(access_token):
                       "active": True,
                       "events": ['push', 'pull_request'],
                       "config": {
-                          "url": 'http://143.248.49.134:8000/hook/',
+                          "url": settings.GIT_HUB_URL + "/hook/",
                           "content_type": 'json'}
                       }
 
     params = json.dumps(new_conditions).encode('utf-8')
     print(params)
-    git_api_url = "https://api.github.com/repos/3kd1000/AutoDo/hooks"
+    git_api_url = settings.GITHUB_API_URL + "/hooks"
     req = urllib.request.Request(git_api_url, params)
     req.add_header("content-type", "application/json")
     req.add_header("authorization", "token " + access_token)
@@ -151,19 +214,3 @@ def hook_callback(request, *args, **kwargs):
     res = json.loads(data)
     return res['repository']['html_url']
 
-
-class GitHubInfo:
-
-    def __init__(self):
-        self.url_list = []
-        self.user_email = ""
-        self.owner_list = []
-
-    def url_append(self, project_url):
-        self.url_list.append(project_url)
-
-    def email_append(self, user_email):
-        self.user_email = user_email
-
-    def owner_append(self, owner_account):
-        self.owner_list.append(owner_account)

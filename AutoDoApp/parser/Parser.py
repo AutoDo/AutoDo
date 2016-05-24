@@ -4,12 +4,13 @@ import os
 import codecs
 import git
 import shutil
+from django.conf import settings
 
 
 class Parser(ParserCommunicator):
 
     def __init__(self):
-        self.tmp_dir = "temp"
+        self.git_dir = ""
         self.dir_dict = {}
         self.class_dict = {}  # key: full path file_name, value: a list containing class names
         self.method_dict = {}  # key: class name, value: a list containing method names defined in the class
@@ -33,7 +34,8 @@ class Parser(ParserCommunicator):
         raise NotImplementedError("Implement this method!")
 
     def parse_project(self, git_url):
-        #self.__clone_repository(git_url=git_url)
+        self.__init__()
+        self.__clone_repository(git_url=git_url)
         self.__parse_directory_structure()
         self.__traverse_directories()
 
@@ -43,26 +45,28 @@ class Parser(ParserCommunicator):
             for caller_class_name, instance_name in self.variable_dict[callee_class_name]:
                 for invoked_method in self.instance_dict[instance_name]:
                     graph.append((caller_class_name, callee_class_name, invoked_method))
-
-        print(graph)
-
-        return graph
+        name = "".join(git_url.split('/')[-1:])
+        tu = [graph, name]
+        return tuple(tu)
 
     def __clone_repository(self, git_url):
-        git_url = git_url
-        if os.path.isdir(self.tmp_dir):
-            shutil.rmtree(self.tmp_dir)
+        git_dir = os.path.join(settings.BASE_DIR, "git_project")
+        git_dir = os.path.join(git_dir, "".join(git_url.split('/')[-1:]))
+        self.git_dir = git_dir
 
-        os.mkdir(self.tmp_dir)
+        if os.path.isdir(git_dir):  # If there is a directory
+            shutil.rmtree(git_dir)  # remove it
 
-        repo = git.Repo.init(self.tmp_dir)
+        os.mkdir(git_dir)  # Building a directory
+
+        repo = git.Repo.init(git_dir)
         origin = repo.create_remote('origin', git_url)
         origin.fetch()
         origin.pull(origin.refs[0].remote_head)
 
     def __parse_directory_structure(self):
         # Root directory setup
-        root_dir = self.tmp_dir + "/test_app/"
+        root_dir = self.git_dir
         # Traverse each directory to parse sub-directories and their files
         for dir_name, subdir_list, file_list in os.walk(root_dir):
             r_index = dir_name.rfind("/")
