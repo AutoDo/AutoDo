@@ -1,14 +1,19 @@
-
-
 import json
+import os
+import sys
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
+import cloudinary
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
 
 import requests
+
+DEFAULT_TAG = "python_sample_basic"
 
 
 def index(request, access_token=""):
@@ -20,14 +25,37 @@ def index(request, access_token=""):
     return HttpResponse(template.render(context=context, request=request))
 
 
+cloudinary.config(
+    cloud_name="sample",
+    api_key="787295861461512",
+    api_secret="avw_ho8hfzfq7C6x-HmnGiM81ZQ"
+)
+
+
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
-    github_info_parse(res)
+    #github_info_parse(res)
+    pwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\static\\image\\cloudtest.jpg'
+    print(pwd)
+    image_upload(pwd)
+    print("uploaded")
     #create_hook(res)
     #get_hook_list(res, git_info)
     #create_pull_request(res, git_info)
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
+
+
+def image_upload(pwd):
+    print("--- Upload a local file")
+    response = upload(pwd, tags=DEFAULT_TAG)
+    dump_response(response)
+
+
+def dump_response(response):
+    print("Upload response:")
+    for key in sorted(response.keys()):
+        print("  %s: %s" % (key, response[key]))
 
 
 def github_info_parse(access_token):
@@ -51,9 +79,7 @@ def github_info_parse(access_token):
             query_string = item['url'] + '/branches/' + branch_item['name']
             string = requests.get(query_string, new_condition)
             single_branch_json = string.json()
-            print(single_branch_json)
             for parent_item in single_branch_json['commit']['parents']:
-                print(parent_item)
                 temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
                                                  , repository_owner=item['owner']['login'],
                                                  repository_head=single_branch_json['name'], repository_base='master'
@@ -135,8 +161,6 @@ def create_hook(access_token):
     req.add_header("authorization", "token " + access_token)
     response = urllib.request.urlopen(req)
     string = response.read().decode('utf-8')
-    print(string)
-    return 1
 
 
 @csrf_exempt
