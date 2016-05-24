@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
 
 import requests
-import hashlib
 
 
 def index(request, access_token=""):
@@ -24,14 +23,32 @@ def index(request, access_token=""):
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
+    request.session['oauth'] = res  # Adding session
     #github_info_parse(res)
+
     branch_name = "refs/heads/test_branch5"
-    create_a_branch(res, branch_name)
-    create_file_commit(res, branch_name)
+    #create_a_branch(res, branch_name)
+    #create_file_commit(res, branch_name)
     #create_hook(res)
     #get_hook_list(res, git_info)
-    create_pull_request(res, "test_branch5")
-    return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
+    #create_pull_request(res, "test_branch5")
+
+    return HttpResponseRedirect(reverse('integration_test'))
+    #return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
+
+
+def integration_test(request):
+    template = loader.get_template('AutoDoApp/integration_test_page.html')
+    request.session['git_url'] = 'https://github.com/JunoJunho/AutoDoTestApp'
+    request.session['project_name'] = "".join(request.session['git_url'].split('/')[-1:])
+    return HttpResponse(template.render(request=request))
+
+
+def integration_process(request):
+    from AutoDoApp.Manager import ManagerThread
+    m = ManagerThread()
+    m.put_request(req=request.session['git_url'])
+    return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
 
 
 def github_info_parse(access_token):
