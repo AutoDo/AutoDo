@@ -68,7 +68,7 @@ def github_info_parse(access_token):
 
 def create_a_branch(access_token, branch_name):
     condition = {"access_token": access_token}
-    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs")
+    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs")  # Variable ##########
     res = res.json()
     b_branch_name = ""
     for item in res:
@@ -79,7 +79,7 @@ def create_a_branch(access_token, branch_name):
     params = {"ref": branch_name,
               "sha": b_branch_name
               }
-    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs",
+    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs",  # Variable ############
                   params=condition,
                   json=params)
 
@@ -87,17 +87,21 @@ def create_a_branch(access_token, branch_name):
 def create_file_commit(access_token, branch_name):
     import base64
     condition = {"access_token": access_token}
-    put_url = "https://api.github.com/repos/JunoJunho/AutoDoTest/contents/README.md"
+    readme_token = "/contents/README.md"
+    url = "https://api.github.com/repos/JunoJunho/AutoDoTest"
+    put_url = url + readme_token  # Variable ############
 
     # 1. Get readme.md
-    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/readme",
+    readme_name = "/readme"
+    res = requests.get(url + readme_name,  # Variable ############
                        params=condition)
     res = res.json()
     readme_hash_code = res['sha']
+    # Need to be fixed
     replacing_content = base64.standard_b64encode(str.encode("## This is replaced README file.")).decode('utf-8')
 
     # 2. setting params
-    params = {
+    params = {  # This needs to be fixed.
         "message": "This is a test message",
         "committer":{
             "name": "Junho Kim",

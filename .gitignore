@@ -297,3 +297,4 @@ ENV/
 # Rope project settings
 .ropeproject
 AutoDoApp/migrations/
+.idea/
