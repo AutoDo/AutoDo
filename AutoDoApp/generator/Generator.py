@@ -5,8 +5,6 @@ from AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
 import pydotplus
 
 
-
-
 class Generator(GeneratorCommunicator):
 
     def generate_document(self):
@@ -21,7 +19,7 @@ class Generator(GeneratorCommunicator):
     def generate_api(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def generate_graph(self,data):
+    def generate_graph(self, data, name):
 
         '''data = [("class A","class B","method A to B"),
                ("class B","class C","method B to C"),
@@ -41,7 +39,11 @@ class Generator(GeneratorCommunicator):
 
 
         # ok, we are set, let's save our graph into a file
-        graph.write_png('example1_graph.png')
+        import os
+        from django.conf import settings
+        png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
+        png_dir = os.path.join(png_dir, name)
+        graph.write_png(png_dir + '.png')
 
         #raise NotImplementedError("You must implement this methods!")
 

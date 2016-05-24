@@ -12,20 +12,25 @@ class ManagerThread(object):
         self.generator = Generator()
         self.task_q = Queue()
         self.result_q = Queue()
-        for method in [self.get_request, self.parse_project, self.generate_document]:
-            t = threading.Thread(method)
+        for method in [self.parse_project, self.generate_document]:
+            t = threading.Thread(target=method)
             t.daemon = True
+            print("Method " + str(method) + " started")
             t.start()
 
-    def get_request(self, req):
+    def put_request(self, req):
         self.task_q.put(req)
 
-    def parse_project(self, github_id, project_id):
+    def parse_project(self):
         # Need to process get project url using github id and project id
-        while not self.task_q.empty():
-            parse_result = self.parser.parse_project(github_id)
-            self.result_q.put(parse_result)
+        while True:
+            if not self.task_q.empty():
+                tu = self.parser.parse_project(self.task_q.get())
+                self.result_q.put(tu)
 
-    def generate_document(self, parsed_info):
-        while not self.result_q.empty():
-            self.generator.generate_graph(data=self.result_q.get())
+    def generate_document(self):
+        while True:
+            if not self.result_q.empty():
+                re = self.result_q.get()
+                self.generator.generate_graph(data=re[0],
+                                              name=re[1])
