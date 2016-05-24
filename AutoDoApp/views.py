@@ -1,5 +1,5 @@
 
-
+from django.conf import settings
 import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -9,13 +9,14 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
 
 import requests
+import hashlib
 
 
 def index(request, access_token=""):
     template = loader.get_template('AutoDoApp/index.html')
     context = {
         'access_token': access_token,
-        'client_id': "66c40334092cde4ea3bb",
+        'client_id': settings.GIT_HUB_URL,
     }
     return HttpResponse(template.render(context=context, request=request))
 
@@ -23,10 +24,13 @@ def index(request, access_token=""):
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
-    github_info_parse(res)
+    #github_info_parse(res)
+    branch_name = "refs/heads/test_branch5"
+    create_a_branch(res, branch_name)
+    create_file_commit(res, branch_name)
     #create_hook(res)
     #get_hook_list(res, git_info)
-    #create_pull_request(res, git_info)
+    create_pull_request(res, "test_branch5")
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
 
 
@@ -62,6 +66,60 @@ def github_info_parse(access_token):
                 temp_account.save()
 
 
+def create_a_branch(access_token, branch_name):
+    condition = {"access_token": access_token}
+    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs")  # Variable ##########
+    res = res.json()
+    b_branch_name = ""
+    for item in res:
+        if "master" in item["ref"]:
+            b_branch_name = item['object']['sha']
+            break
+
+    params = {"ref": branch_name,
+              "sha": b_branch_name
+              }
+    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs",  # Variable ############
+                  params=condition,
+                  json=params)
+
+
+def create_file_commit(access_token, branch_name):
+    import base64
+    condition = {"access_token": access_token}
+    readme_token = "/contents/README.md"
+    url = "https://api.github.com/repos/JunoJunho/AutoDoTest"
+    put_url = url + readme_token  # Variable ############
+
+    # 1. Get readme.md
+    readme_name = "/readme"
+    res = requests.get(url + readme_name,  # Variable ############
+                       params=condition)
+    res = res.json()
+    readme_hash_code = res['sha']
+    # Need to be fixed
+    replacing_content = base64.standard_b64encode(str.encode("## This is replaced README file.")).decode('utf-8')
+
+    # 2. setting params
+    params = {  # This needs to be fixed.
+        "message": "This is a test message",
+        "committer":{
+            "name": "Junho Kim",
+            "email": "wnsgh611@gmail.com"
+        },
+        "content": replacing_content,
+        "sha": readme_hash_code,
+        "branch": branch_name
+    }
+
+    # 3. PUT
+    res = requests.put(url=put_url,
+                       params=condition,
+                       json=params)
+    res = res.json()
+    print(res['commit']['sha'])
+
+
 def create_commit(access_token):
     temp_objs = GithubInformation.objects.filter(repository_head__contains="develop")
     for item in temp_objs:
@@ -69,9 +127,8 @@ def create_commit(access_token):
 
 
 def get_hook_list(access_token, git_info):
-    query_string = 'https://api.github.com/repos'
     new_condition = {"access_token": access_token}
-    string = requests.get('https://api.github.com/repos/3kd1000/AutoDo/hooks', new_condition)
+    string = requests.get(settings.GITHUB_API_URL + '/hooks', new_condition)
     hook_json = string.json()
 
 
@@ -79,8 +136,8 @@ def post_json(code):
     import json
     import urllib.request
 
-    new_conditions = {"client_id": '66c40334092cde4ea3bb',
-                      "client_secret": '24076f838f57319415ed5c5946d59a8bb01ddaa3',
+    new_conditions = {"client_id": settings.GITHUB_OAUTH_CLIENT_ID,
+                      "client_secret": settings.GITHUB_OAUTH_CLIENT_SECRET,
                       "code": code}
     params = json.dumps(new_conditions).encode('utf-8')
     git_api_url = "https://github.com/login/oauth/access_token"
@@ -95,24 +152,18 @@ def post_json(code):
     return access_token
 
 
-def create_pull_request(access_token, project_url):
-    import json
-    import urllib.request
-
-    new_conditions = {"title": 'test',
-                      "body": 'please pull this request',
-                      "head": 'develop',
-                      "base": "master"}
-    params = json.dumps(new_conditions).encode('utf-8')
-    git_api_url = "https://api.github.com/repos/AutoDo/AutoDo/pulls"
-
-    req = urllib.request.Request(git_api_url, params)
-    req.add_header("content-type", "application/json")
-    req.add_header("authorization", "token " + access_token)
-    response = urllib.request.urlopen(req)
-    string = response.read().decode('utf-8')
-    print(string)
-    return 1
+def create_pull_request(access_token, branch_name):
+    condition = {"access_token": access_token}
+    params = {
+        "title": 'test',
+        "body": 'please pull this request',
+        "head": branch_name,
+        "base": "master"
+    }
+    res = requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/pulls",
+                        params=condition,
+                        json=params)
+    print(res)
 
 
 def create_hook(access_token):
@@ -123,13 +174,13 @@ def create_hook(access_token):
                       "active": True,
                       "events": ['push', 'pull_request'],
                       "config": {
-                          "url": 'http://143.248.49.134:8000/hook/',
+                          "url": settings.GIT_HUB_URL + "/hook/",
                           "content_type": 'json'}
                       }
 
     params = json.dumps(new_conditions).encode('utf-8')
     print(params)
-    git_api_url = "https://api.github.com/repos/3kd1000/AutoDo/hooks"
+    git_api_url = settings.GITHUB_API_URL + "/hooks"
     req = urllib.request.Request(git_api_url, params)
     req.add_header("content-type", "application/json")
     req.add_header("authorization", "token " + access_token)

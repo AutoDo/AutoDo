@@ -33,6 +33,7 @@ class Parser(ParserCommunicator):
         raise NotImplementedError("Implement this method!")
 
     def parse_project(self, git_url):
+        self.__init__()
         #self.__clone_repository(git_url=git_url)
         self.__parse_directory_structure()
         self.__traverse_directories()

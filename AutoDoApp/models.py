@@ -11,4 +11,4 @@ class GithubInformation(models.Model):
     tree_sha = models.CharField(max_length=200, default="none")
 
     def __str__(self):
-        return self.user_email
+        return self.repository_url + "/" + self.repository_head
