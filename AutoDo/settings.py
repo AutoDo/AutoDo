@@ -22,6 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-p)-7gvsi!+jkj&j-(%q(x**6r=c60fh1n_aub5xjxg+p@x$hl'
 
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -55,8 +57,10 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'AutoDo.urls'
 
-GITHUB_OAUTH_CLIENT_ID=''
-GITHUB_OAUTH_CLIENT_SECRET=''
+GIT_HUB_URL = "http://143.248.47.86:8000"
+GITHUB_OAUTH_CLIENT_ID='7fa5efee70682c4f9941'
+GITHUB_OAUTH_CLIENT_SECRET='c05436d0c053c8174212937bf7d96b19de260240'
+GITHUB_API_URL = "https://api.github.com/repos/JunoJunho/AutoDo"
 GITHUB_EXTENDED_PERMISSIONS = ['email']
 LOGIN_REDIRECT_URL = 'index.html'
 
