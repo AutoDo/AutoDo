@@ -10,9 +10,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
+<<<<<<< HEAD
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
+=======
+import os
+>>>>>>> f835f9ea8457a8181fbcd43373afb94bb57865dd
 
 import requests
 
@@ -68,6 +72,13 @@ def integration_process(request):
     from AutoDoApp.Manager import ManagerThread
     m = ManagerThread()
     m.put_request(req=request.session['git_url'])
+
+    import time
+    time.sleep(10)  # Temporal time sleep
+
+    create_a_branch(access_token=request.session['oauth'], branch_name="refs/heads/tb1")
+    create_file_commit(request.session['oauth'], "refs/heads/tb1")
+    create_pull_request(request.session['oauth'], "tb1")
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
 
 def image_upload(pwd):
@@ -114,7 +125,7 @@ def github_info_parse(access_token):
 
 def create_a_branch(access_token, branch_name):
     condition = {"access_token": access_token}
-    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs")  # Variable ##########
+    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTestApp/git/refs")  # Variable ##########
     res = res.json()
     b_branch_name = ""
     for item in res:
@@ -125,7 +136,7 @@ def create_a_branch(access_token, branch_name):
     params = {"ref": branch_name,
               "sha": b_branch_name
               }
-    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/git/refs",  # Variable ############
+    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTestApp/git/refs",  # Variable ############
                   params=condition,
                   json=params)
 
@@ -134,7 +145,7 @@ def create_file_commit(access_token, branch_name):
     import base64
     condition = {"access_token": access_token}
     readme_token = "/contents/README.md"
-    url = "https://api.github.com/repos/JunoJunho/AutoDoTest"
+    url = "https://api.github.com/repos/JunoJunho/AutoDoTestApp"
     put_url = url + readme_token  # Variable ############
 
     # 1. Get readme.md
@@ -142,9 +153,17 @@ def create_file_commit(access_token, branch_name):
     res = requests.get(url + readme_name,  # Variable ############
                        params=condition)
     res = res.json()
+    print(res)
     readme_hash_code = res['sha']
     # Need to be fixed
-    replacing_content = base64.standard_b64encode(str.encode("## This is replaced README file.")).decode('utf-8')
+    readme_dir = os.path.join(settings.BASE_DIR, "parsing_result")
+    readme_dir = os.path.join(readme_dir, "AutoDoTestApp.md")
+    f = open(readme_dir, 'r')
+    lines = f.readlines()
+    contents = ""
+    for line in lines:
+        contents += line
+    replacing_content = base64.standard_b64encode(str.encode(contents)).decode('utf-8')
 
     # 2. setting params
     params = {  # This needs to be fixed.
@@ -157,13 +176,13 @@ def create_file_commit(access_token, branch_name):
         "sha": readme_hash_code,
         "branch": branch_name
     }
+    print("Put commit")
 
     # 3. PUT
     res = requests.put(url=put_url,
                        params=condition,
                        json=params)
-    res = res.json()
-    print(res['commit']['sha'])
+    print(res)
 
 
 def create_commit(access_token):
@@ -206,9 +225,11 @@ def create_pull_request(access_token, branch_name):
         "head": branch_name,
         "base": "master"
     }
-    res = requests.post("https://api.github.com/repos/JunoJunho/AutoDoTest/pulls",
+    print("Put PR")
+    res = requests.post("https://api.github.com/repos/JunoJunho/AutoDoTestApp/pulls",
                         params=condition,
                         json=params)
+
     print(res)
 
 
