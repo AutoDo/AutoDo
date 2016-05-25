@@ -41,23 +41,17 @@ def oauth_callback(request):
     request.session['oauth'] = res  # Adding session
     #github_info_parse(res)
 
-<<<<<<< HEAD
     pwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\static\\image\\cloudtest.jpg'
     print(pwd)
     image_upload(pwd)
     print("uploaded")
 
-=======
->>>>>>> 0db3f4104af0bb5b1d8e4eb9fc04bdaf1589302f
     branch_name = "refs/heads/test_branch5"
     #create_a_branch(res, branch_name)
     #create_file_commit(res, branch_name)
     #create_hook(res)
     #get_hook_list(res, git_info)
     #create_pull_request(res, "test_branch5")
-<<<<<<< HEAD
-    return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
-=======
 
     return HttpResponseRedirect(reverse('integration_test'))
     #return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
@@ -75,8 +69,6 @@ def integration_process(request):
     m = ManagerThread()
     m.put_request(req=request.session['git_url'])
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
->>>>>>> 0db3f4104af0bb5b1d8e4eb9fc04bdaf1589302f
-
 
 def image_upload(pwd):
     print("--- Upload a local file")
