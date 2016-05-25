@@ -34,3 +34,4 @@ class ManagerThread(object):
                 re = self.result_q.get()
                 self.generator.generate_graph(data=re[0],
                                               name=re[1])
+                self.generator.generate_document(name=re[1])
