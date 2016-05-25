@@ -20,7 +20,7 @@ class Generator(GeneratorCommunicator):
     def __init__(self):
         self.png_dir = ""
         self.git_project_name = ""
-
+        self.url = ""
     def generate_document(self, name):
         readme_dir = self.png_dir + ".md"
         readme_data = {"Introduction": "project",
@@ -68,7 +68,7 @@ class Generator(GeneratorCommunicator):
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
-                    readme.write("<img src='http://res.cloudinary.com/jin8/image/upload/"+name+".png'/>")
+                    readme.write("<img src='"+self.url+"'.png'/>")
                     readme.write("</p>\n")
 
                 elif title == "Contributor":
@@ -124,4 +124,16 @@ class Generator(GeneratorCommunicator):
             api_key="179139842767459",
             api_secret="BtqQQ54EvWJ8U4TKePyUvFk8kkU"
         )
-        cloudinary.uploader.upload(self.png_dir + '.png', public_id=name + ".png")
+        response= cloudinary.uploader.upload(self.png_dir + '.png', public_id=name + ".png")
+        self.url =response['url']
+
+
+if __name__ == "__main__":
+    from AutoDoApp.parser.Parser import Parser
+
+    p = Parser()
+    re = p.parse_project(git_url="https://github.com/JunoJunho/AutoDoAppTest")
+    g = Generator()
+    g.generate_graph(re[0],re[1])
+    g.generate_document(re[1])
+
