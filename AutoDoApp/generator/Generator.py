@@ -20,9 +20,11 @@ class Generator(GeneratorCommunicator):
     def __init__(self):
         self.png_dir = ""
         self.git_project_name = ""
-
+        self.url = ""
     def generate_document(self, name):
         readme_dir = self.png_dir + ".md"
+        if os.path.isfile(readme_dir + ".md"):
+            os.remove(readme_dir + ".md")
         readme_data = {"Introduction": "project",
                        "Requirements": "information need to execute",
                        "API Reference": {"class1":
@@ -68,7 +70,7 @@ class Generator(GeneratorCommunicator):
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
-                    readme.write("<img src='http://res.cloudinary.com/jin8/image/upload/"+name+".png'/>")
+                    readme.write("<img src='"+self.url+"'.png'/>")
                     readme.write("</p>\n")
 
                 elif title == "Contributor":
@@ -114,8 +116,8 @@ class Generator(GeneratorCommunicator):
 
         self.png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
         self.png_dir = os.path.join(self.png_dir, name)
-        if os.path.isdir(self.png_dir):  # If there is a directory
-            shutil.rmtree(self.png_dir)  # remove it
+        if os.path.isfile(self.png_dir + ".png"):
+            os.remove(self.png_dir + ".png")
 
         graph.write_png(self.png_dir + '.png')
 
@@ -124,4 +126,16 @@ class Generator(GeneratorCommunicator):
             api_key="179139842767459",
             api_secret="BtqQQ54EvWJ8U4TKePyUvFk8kkU"
         )
-        cloudinary.uploader.upload(self.png_dir + '.png', public_id=name + ".png")
+        response= cloudinary.uploader.upload(self.png_dir + '.png', public_id=name + ".png")
+        self.url =response['url']
+
+
+if __name__ == "__main__":
+    from AutoDoApp.parser.Parser import Parser
+
+    p = Parser()
+    re = p.parse_project(git_url="https://github.com/JunoJunho/AutoDoAppTest")
+    g = Generator()
+    g.generate_graph(re[0],re[1])
+    g.generate_document(re[1])
+
