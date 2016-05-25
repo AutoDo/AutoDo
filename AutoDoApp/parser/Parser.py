@@ -3,7 +3,7 @@ from AutoDoApp.parser.ParserCommunicator import ParserCommunicator
 import os
 import codecs
 import git
-import shutil
+import stat
 from django.conf import settings
 
 
@@ -57,8 +57,10 @@ class Parser(ParserCommunicator):
         if os.path.isdir(git_dir):  # If there is a directory
             for root, dirs, files in os.walk(top=git_dir, topdown=False):
                 for name in files:
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)
                     os.remove(os.path.join(root, name))
                 for name in dirs:
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)
                     os.rmdir(os.path.join(root, name))
             os.rmdir(git_dir)
 
