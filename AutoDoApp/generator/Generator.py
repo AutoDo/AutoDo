@@ -45,9 +45,6 @@ class Generator(GeneratorCommunicator):
         png_dir = os.path.join(png_dir, name)
         graph.write_png(png_dir + '.png')
 
-        #raise NotImplementedError("You must implement this methods!")
-
-
 if __name__ == "__main__":
     gen = Generator()
     data = [('Math(object)', 'Circle', 'get_areaget_area()'), ('Math(object)', 'Circle', 'get_circumferenceget_circumference()'), ('Math(object)', 'Triangle', 'check_anglecheck_angle()'), ('Math(object)', 'Square', 'get_areaget_area()'), ('Math(object)', 'Square', 'get_heightget_height()'), ('Math(object)', 'Square', 'get_widthget_width()')]
