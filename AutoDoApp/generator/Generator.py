@@ -1,6 +1,13 @@
 # This python module is for document generator module
 
 import pydotplus
+import cloudinary
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+from AutoDo.AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
 
 
 import cloudinary
@@ -79,7 +86,7 @@ class Generator(GeneratorCommunicator):
     def generate_api(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def generate_graph(self, data, name):
+    def generate_graph(self,data):
 
         '''data = [("class A","class B","method A to B"),
                ("class B","class C","method B to C"),
@@ -90,11 +97,11 @@ class Generator(GeneratorCommunicator):
                 ("class B","class B","method B to B"),
                 ("class C","class C","method C to C")]
         '''
-        graph = pydotplus.Dot(graph_type="digraph")
+        graph = pydotplus.Dot(graph_type="digraph" )
 
         # let's add the relationship between the king and vassals
         for i in range(len(data)):
-            edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2])
+            edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
             graph.add_edge(edge)
 
 
@@ -120,6 +127,5 @@ class Generator(GeneratorCommunicator):
 if __name__ == "__main__":
     gen = Generator()
     data = [('Math(object)', 'Circle', 'get_areaget_area()'), ('Math(object)', 'Circle', 'get_circumferenceget_circumference()'), ('Math(object)', 'Triangle', 'check_anglecheck_angle()'), ('Math(object)', 'Square', 'get_areaget_area()'), ('Math(object)', 'Square', 'get_heightget_height()'), ('Math(object)', 'Square', 'get_widthget_width()')]
-    readme = {}
-    gen.generate_graph(data,"example_graph")
-    gen.generate_document(readme,"example_graph")
+    gen.generate_graph(data)
+    gen.generate_document()
