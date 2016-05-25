@@ -1,8 +1,6 @@
-<<<<<<< HEAD
-=======
 
 from django.conf import settings
->>>>>>> 506b5747c4de43975398487812a525f46997446d
+
 import json
 import os
 import sys
@@ -42,19 +40,18 @@ def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
     #github_info_parse(res)
-<<<<<<< HEAD
+
     pwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\static\\image\\cloudtest.jpg'
     print(pwd)
     image_upload(pwd)
     print("uploaded")
-=======
+
     branch_name = "refs/heads/test_branch5"
-    create_a_branch(res, branch_name)
-    create_file_commit(res, branch_name)
->>>>>>> 506b5747c4de43975398487812a525f46997446d
+    #create_a_branch(res, branch_name)
+    #create_file_commit(res, branch_name)
     #create_hook(res)
     #get_hook_list(res, git_info)
-    create_pull_request(res, "test_branch5")
+    #create_pull_request(res, "test_branch5")
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
 
 
