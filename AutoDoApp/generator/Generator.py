@@ -23,6 +23,8 @@ class Generator(GeneratorCommunicator):
 
     def generate_document(self, name):
         readme_dir = self.png_dir + ".md"
+        if os.path.isfile(readme_dir + ".md"):
+            shutil.rmtree(readme_dir + ".md")
         readme_data = {"Introduction": "project",
                        "Requirements": "information need to execute",
                        "API Reference": {"class1":
@@ -114,8 +116,8 @@ class Generator(GeneratorCommunicator):
 
         self.png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
         self.png_dir = os.path.join(self.png_dir, name)
-        if os.path.isdir(self.png_dir):  # If there is a directory
-            shutil.rmtree(self.png_dir)  # remove it
+        if os.path.isfile(self.png_dir + ".png"):
+            shutil.rmtree(self.png_dir + ".png")
 
         graph.write_png(self.png_dir + '.png')
 
