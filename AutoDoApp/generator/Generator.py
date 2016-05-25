@@ -1,25 +1,28 @@
 # This python module is for document generator module
 
 import pydotplus
-import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-from AutoDo.AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
+import os
+import shutil
+from django.conf import settings
 
-
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-from AutoDo.AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
+from AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
 
 
 class Generator(GeneratorCommunicator):
 
+    def __init__(self):
+        self.png_dir = ""
+        self.git_project_name = ""
+
     def generate_document(self, name):
+        readme_dir = self.png_dir + ".md"
         readme_data = {"Introduction": "project",
                        "Requirements": "information need to execute",
                        "API Reference": {"class1":
@@ -38,7 +41,7 @@ class Generator(GeneratorCommunicator):
                        "License": "get license of the project"}
 
         readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "Contributor", "License"]
-        with open("README.md", "w") as readme:
+        with open(readme_dir, "w") as readme:
 
             for title in readme_order:
                 content = readme_data[title]
@@ -55,22 +58,17 @@ class Generator(GeneratorCommunicator):
                 #    readme.write("``` code\n")
                 #    readme.write("```"+"\n")
 
-                elif title == "API Reference" :
-                    for class_name , method_dict in content.items():
-                        readme.write("#### "+ class_name+"\n\n")
+                elif title == "API Reference":
+                    for class_name, method_dict in content.items():
+                        readme.write("#### " + class_name+"\n\n")
                         for method, desc in method_dict.items():
-                            readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+"**"+ method +"**"+"\n\n");
+                            readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "**" + method + "**" + "\n\n")
 
                         readme.write("\n")
                 elif title == "Dependency graph":
                     # graph file name
-                    import os
-                    from django.conf import settings
-                    png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
-                    png_dir = os.path.join(png_dir, name)
-
                     readme.write("<p align='center'>")
-                    readme.write("<img src='http://res.cloudinary.com/jin8/image/upload/"+png_dir+".png'/>")
+                    readme.write("<img src='http://res.cloudinary.com/jin8/image/upload/"+name+".png'/>")
                     readme.write("</p>\n")
 
                 elif title == "Contributor":
@@ -79,6 +77,8 @@ class Generator(GeneratorCommunicator):
                 elif title == "License":
                     readme.write(content+"\n")
                 readme.write("\n\n")
+
+            readme.close()
 
     def send_complete_notification(self):
         raise NotImplementedError("You must implement this methods!")
@@ -89,9 +89,8 @@ class Generator(GeneratorCommunicator):
     def generate_api(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def generate_graph(self, data, name):
-
-        '''data = [("class A","class B","method A to B"),
+    '''
+        data = [("class A","class B","method A to B"),
                ("class B","class C","method B to C"),
                 ("class C","class A","method C to A"),
                 ("class C", "class A", "method C' to A'"),
@@ -99,26 +98,30 @@ class Generator(GeneratorCommunicator):
                 ("class A","class A","method A to A"),
                 ("class B","class B","method B to B"),
                 ("class C","class C","method C to C")]
-        '''
-        graph = pydotplus.Dot(graph_type="digraph" )
+    '''
+    def generate_graph(self, data, name):
+        self.__generate_graph(data, name)
+
+    def __generate_graph(self, data, name):
+        graph = pydotplus.Dot(graph_type="digraph")
 
         # let's add the relationship between the king and vassals
         for i in range(len(data)):
             edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
             graph.add_edge(edge)
 
-
         # ok, we are set, let's save our graph into a file
-        import os
-        from django.conf import settings
-        print(settings.BASE_DIR)
-        png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
-        png_dir = os.path.join(png_dir, name)
-        graph.write_png(png_dir + '.png')
+
+        self.png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
+        self.png_dir = os.path.join(self.png_dir, name)
+        if os.path.isdir(self.png_dir):  # If there is a directory
+            shutil.rmtree(self.png_dir)  # remove it
+
+        graph.write_png(self.png_dir + '.png')
 
         cloudinary.config(
             cloud_name="jin8",
             api_key="179139842767459",
             api_secret="BtqQQ54EvWJ8U4TKePyUvFk8kkU"
         )
-        cloudinary.uploader.upload(png_dir+'.png', public_id=png_dir)
+        cloudinary.uploader.upload(self.png_dir + '.png', public_id=name + ".png")
