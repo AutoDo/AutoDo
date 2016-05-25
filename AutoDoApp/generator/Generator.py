@@ -19,8 +19,8 @@ from AutoDo.AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicat
 
 class Generator(GeneratorCommunicator):
 
-    def generate_document(self, name):
-        data = {  "Introduction": "project",
+    def generate_document(self, data):
+        readme_data = {  "Introduction": "project",
                   "Requirements": "information need to execute",
                   "API Reference": {"class1":{"method1":"description","method2":"description", "method3":"description"},
                                      "class2":{"method1":"description"}},
@@ -33,7 +33,7 @@ class Generator(GeneratorCommunicator):
         with open("README.md","w") as readme:
 
             for title in readme_order:
-                content = data[title]
+                content = readme_data[title]
                 readme.write("## " + title + "\n")
                 if title == "Introduction":
                     readme.write("TODO: Describe the about the project \n")
@@ -86,7 +86,7 @@ class Generator(GeneratorCommunicator):
     def generate_api(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def generate_graph(self,data):
+    def generate_graph(self, data, name):
 
         '''data = [("class A","class B","method A to B"),
                ("class B","class C","method B to C"),
