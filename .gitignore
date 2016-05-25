@@ -298,3 +298,5 @@ ENV/
 .ropeproject
 AutoDoApp/migrations/
 .idea/
+/git_project/
+/parsing_result/
