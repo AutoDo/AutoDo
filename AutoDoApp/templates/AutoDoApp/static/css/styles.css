@@ -86,7 +86,7 @@ html, body {
   margin-bottom: 20px;
 }
 .project .mdl-card__actions {
-  margin: 0;
+  margin-top: 15px;
   padding: 4px 40px;
   color: inherit;
 }
@@ -240,10 +240,14 @@ html, body {
   z-index: 99;
 }
 
+
 .mdl-cell{
+
   min-height: 36px;
-  margin: auto 0;
-  padding: 7px 5px;
+  margin: auto 0px;
+  padding: 0px 20px;
+  vertical-align: middle;
+
 }
 
 
@@ -270,8 +274,10 @@ p {
 }
 
 .mdl-card .mdl-button i {
-  margin: 0px 7px;
+  margin-left: 7px;
 }
+
+
 
 .project .mdl-card__actions .mdl-textfield{
   padding-top:0px;
@@ -279,6 +285,14 @@ p {
 
 }
 
+
+/* ========= General ==============*/
+.top0{
+  top: 0!important;
+}
+.p0{
+  padding:0 !important;
+}
 .right-corner{
      position: fixed;
       display: block;
@@ -289,6 +303,14 @@ p {
       z-index: 900;
 }
 
+.mdl-textfield__label:after{
+  bottom:0 !important;
+}
+
+/* ========= button ==============*/
+.right .mdl-button{
+    margin-left: 10px;
+}
 
 /* ==========  Spinner  ========== */
 

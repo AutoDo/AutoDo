@@ -58,7 +58,7 @@ $(document).ready(function() {
                      "</label>"+
                      "</div>"+
                      "<div class='mdl-cell mdl-cell--6-col right'>"+
-                     "<button class='mdl-button mdl-js-button mdl-js-ripple-effect refresh'>"+
+                     "<button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect refresh'>"+
                      "refresh<i class='material-icons'>autorenew</i>"+
                      "</button>"+
                      "</div>"+
@@ -68,14 +68,14 @@ $(document).ready(function() {
                      "recent update &nbsp; 2016.05.27"+
                      "</div>"+
                      "<div class='mdl-cell mdl-cell--6-col right'>"+
-                     "<button  class='mdl-button mdl-js-button mdl-js-ripple-effect manage'>"+
+                     "<button  class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect manage'>"+
                      "mange project<i class='material-icons'>build</i>"+
                      "</button>"+
                      "</div>"+
                      "</div>"+
                      "<div class='mdl-grid'>"+
                      "<div class='mdl-cell mdl-cell--12-col label right'>"+
-                     "<button class='mdl-button mdl-js-button mdl-js-ripple-effect'>"+
+                     "<button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate'>"+
                      "Generate Document NOW"+
                      "</button>"+
                      "</div>"+
@@ -84,7 +84,7 @@ $(document).ready(function() {
                      "<div class='mdl-card__actions mdl-card--border'>"+
                      "<h6>introduction</h6>"+
                      "<p>Project information</p>"+
-                     "<button class='mdl-button mdl-js-button mdl-js-ripple-effect edit' >edit</button>"+
+                     "<button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit' >edit</button>"+
                      "</div>"+
                      "</div>"+
                      "</div>");
