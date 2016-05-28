@@ -65,23 +65,20 @@
             <span class="fr">1 week</span>
 
         </div>
-        <div class='mdl-cell mdl-cell--1-col'></div>
 
-        <div class='mdl-cell mdl-cell--1-col'>
+
+        <div class='mdl-cell mdl-cell--4-col'>
             <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox">
             <input type="checkbox" id="checkbox" class="mdl-checkbox__input right" >
+            <div class="mdl-textfield mdl-js-textfield p0">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
+            <label class="mdl-textfield__label top0" for="sample2">Custom</label>
+            <span class="mdl-textfield__error">Input is not a number!</span>
+            </div>
             </label>
 
         </div>
-        <div class='mdl-cell mdl-cell--2-col'>
 
-            <div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
-            <label class="mdl-textfield__label" for="sample2">Custom</label>
-            <span class="mdl-textfield__error">Input is not a number!</span>
-            </div>
-
-        </div>
     </div>
 
     <div class="mdl-grid">
@@ -127,11 +124,11 @@
 
 
         <div class='mdl-cell mdl-cell--12-col label right'>
-        <button class='mdl-button mdl-js-button mdl-js-ripple-effect'>
+        <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'>
         Submit
         </button>
 
-        <button class='mdl-button mdl-js-button mdl-js-ripple-effect'>
+        <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'>
         Cancel
         </button>
 
