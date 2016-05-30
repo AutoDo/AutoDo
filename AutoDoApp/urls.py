@@ -4,7 +4,8 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.login, name='login'),
+    url(r'^main/', views.main, name='main'),
     url(r'^integration/', views.integration_test, name='integration_test'),
     url(r'^integration_process/', views.integration_process, name='integration_process'),
     url(r'callback/', views.oauth_callback, name='callback'),

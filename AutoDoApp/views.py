@@ -4,12 +4,21 @@ import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
 import os
 
 import requests
+
+'''
+    # Usage profile.
+    branch_name = "refs/heads/test_branch5"
+    #create_a_branch(res, branch_name)
+    #create_file_commit(res, branch_name)
+    #create_hook(res)
+    #get_hook_list(res, git_info)
+    #create_pull_request(res, "test_branch5")
+'''
 
 
 def index(request, access_token=""):
@@ -21,21 +30,40 @@ def index(request, access_token=""):
     return HttpResponse(template.render(context=context, request=request))
 
 
+def login(request):
+    template = loader.get_template('AutoDoApp/login.html')
+    context = {
+        'client_id': settings.GIT_HUB_URL
+    }
+    return HttpResponse(template.render(
+        context=context,
+        request=request)
+    )
+
+
+def main(request):
+    if 'oauth' not in request.session:
+        return HttpResponseRedirect(reverse('login'))
+    elif not request.session['oauth']:
+        return HttpResponseRedirect(reverse('login'))
+    template = loader.get_template('AutoDoApp/main.html')
+    context = {
+        'client_id': settings.GIT_HUB_URL
+    }
+    return HttpResponse(template.render(
+        context=context,
+        request=request)
+    )
+
+
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
     request.session['oauth'] = res  # Adding session
-    #github_info_parse(res)
+    project_list = github_info_parse(res, request)
+    request.session['project_list'] = project_list
 
-    branch_name = "refs/heads/test_branch5"
-    #create_a_branch(res, branch_name)
-    #create_file_commit(res, branch_name)
-    #create_hook(res)
-    #get_hook_list(res, git_info)
-    #create_pull_request(res, "test_branch5")
-
-    return HttpResponseRedirect(reverse('integration_test'))
-    #return HttpResponseRedirect(reverse('index', kwargs={'access_token': res}))
+    return HttpResponseRedirect(reverse('main'))
 
 
 def integration_test(request):
@@ -59,11 +87,12 @@ def integration_process(request):
     return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
 
 
-def github_info_parse(access_token):
+def github_info_parse(access_token, request):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
     str_json = string.json()
     email = str_json[0]['email']
+    project_list = []
 
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
     repo_json = repo_string.json()
@@ -76,19 +105,26 @@ def github_info_parse(access_token):
         query_string = item['url'] + '/branches'
         string = requests.get(query_string, new_condition)
         branch_json = string.json()
-        for branch_item in branch_json:
-            query_string = item['url'] + '/branches/' + branch_item['name']
-            string = requests.get(query_string, new_condition)
-            single_branch_json = string.json()
-            print(single_branch_json)
-            for parent_item in single_branch_json['commit']['parents']:
-                print(parent_item)
-                temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
-                                                 , repository_owner=item['owner']['login'],
-                                                 repository_head=single_branch_json['name'], repository_base='master'
-                                                 , parent_branch_sha=parent_item['sha'],
-                                                 tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
-                temp_account.save()
+        print(item['html_url'])
+        # for branch_item in branch_json:
+        #     query_string = item['url'] + '/branches/' + branch_item['name']
+        #     string = requests.get(query_string, new_condition)
+        #     single_branch_json = string.json()
+        #     print(single_branch_json)
+        #     for parent_item in single_branch_json['commit']['parents']:
+        #         print(parent_item)
+        #         temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
+        #                                          , repository_owner=item['owner']['login'],
+        #                                          repository_head=single_branch_json['name'], repository_base='master'
+        #                                          , parent_branch_sha=parent_item['sha'],
+        #                                          tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
+        #         temp_account.save()
+        temp_dict = {'project_url': str(item['html_url']),
+                     'project_name': "".join(str(item['html_url']).split('/')[-1:])}
+        project_list.append(temp_dict)
+
+    request.session['email'] = email
+    return project_list
 
 
 def create_a_branch(access_token, branch_name):
