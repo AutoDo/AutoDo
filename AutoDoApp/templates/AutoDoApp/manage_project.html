@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+    <link rel='stylesheet' href='https://code.getmdl.io/1.1.3/material.indigo-pink.min.css'>
+    <script defer src='https://code.getmdl.io/1.1.3/material.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js'></script>
+     <link rel='stylesheet' href='static/css/styles.css'>
+    <script src='static/js/main.js'></script>
+    <meta charset="UTF-8">
+    <title>Manage Project</title>
+</head>
+<body class='project mdl-color--grey-100 mdl-color-text--grey-700 mdl-base'>
+
+
+    <div class='mdl-layout mdl-js-layout mdl-layout--fixed-header'>
+      <header class='mdl-layout__header'>
+        <div class='mdl-layout__header-row'>
+          <!-- Title -->
+          <h4>AutoDo</h4>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class='mdl-layout-spacer'></div>
+          <!-- Navigation. We hide it in small screens. -->
+          <nav class='mdl-navigation'>
+            <span>Welcome User</span>
+            <a class='mdl-navigation__link' href=''>Link</a>
+          </nav>
+        </div>
+      </header>
+
+    <main class='mdl-layout__content'>
+    <div class='page-content'>
+    <div class='mdl-card mdl-shadow--2dp'>
+    <!--form-->
+    <form class='mdl-card__supporting-text' action="#">
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col">
+        <h5> Project Name </h5>
+        </div>
+
+    </div>
+    <div class="mdl-grid">
+        <div class='mdl-cell mdl-cell--4-col'>Repository Address</div>
+        <div class='mdl-cell mdl-cell--8-col'> https://github.com/User/ProjectB.git</div>
+    </div>
+    <div class="mdl-grid">
+        <div class='mdl-cell mdl-cell--4-col'>Update Period</div>
+        <div class='mdl-cell mdl-cell--4-col'>
+            <input id="slider1" class="mdl-slider mdl-js-slider" type="range" min="0" max="7" value="0" step="1" >
+            <span>every day</span>
+            <span class="fr">1 week</span>
+
+        </div>
+
+        <div class='mdl-cell mdl-cell--4-col'>
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox">
+            <input type="checkbox" id="checkbox" class="mdl-checkbox__input right" >
+             <div class="mdl-textfield mdl-js-textfield p0">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
+            <label class="mdl-textfield__label top0" for="sample2">Custom</label>
+            <span class="mdl-textfield__error">Input is not a number!</span>
+            </div>
+            </label>
+
+        </div>
+
+    </div>
+
+    <div class="mdl-grid">
+        <div class='mdl-cell mdl-cell--6-col'>
+             Commit
+          <ul class="mdl-list">
+
+          <li class="mdl-list__item">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-1">
+              <input type="checkbox" id="checkbox-1" class="mdl-checkbox__input" checked>
+              <span class="mdl-checkbox__label">Direct Commit</span>
+            </label>
+          </li>
+          <li class="mdl-list__item">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-2">
+              <input type="checkbox" id="checkbox-2" class="mdl-checkbox__input" checked>
+              <span class="mdl-checkbox__label">Pull-Request Commit</span>
+            </label>
+          </li>
+        </ul>
+
+        </div>
+        <div class='mdl-cell mdl-cell--6-col'>
+            Graph
+              <ul class="mdl-list">
+
+          <li class="mdl-list__item">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-3">
+              <input type="checkbox" id="checkbox-3" class="mdl-checkbox__input" checked>
+              <span class="mdl-checkbox__label">All Together</span>
+            </label>
+          </li>
+          <li class="mdl-list__item">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-4">
+              <input type="checkbox" id="checkbox-4" class="mdl-checkbox__input" checked>
+              <span class="mdl-checkbox__label">For Each Directory</span>
+            </label>
+          </li>
+        </ul>
+        </div>
+    </div>
+    <div class="mdl-grid">
+
+
+        <div class='mdl-cell mdl-cell--12-col right'>
+        <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'>
+        Change
+        </button>
+
+        <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'>
+        Cancel
+        </button>
+
+        </div>
+    </div>
+
+
+    </form>
+    </div>
+    </div>
+
+
+
+    </main>
+    </div>
+
+</body>
+</html>

@@ -9,7 +9,6 @@ import cloudinary.uploader
 import cloudinary.api
 
 import os
-import shutil
 from django.conf import settings
 
 from AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
@@ -21,6 +20,7 @@ class Generator(GeneratorCommunicator):
         self.png_dir = ""
         self.git_project_name = ""
         self.url = ""
+
     def generate_document(self, name):
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
@@ -70,7 +70,9 @@ class Generator(GeneratorCommunicator):
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
-                    readme.write("<img src='"+self.url+"'/>")
+
+                    readme.write("<img src='" + self.url + "'/>")
+
                     readme.write("</p>\n")
 
                 elif title == "Contributor":
