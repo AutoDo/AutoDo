@@ -47,7 +47,7 @@
             {% for item in request.session.project_list %}
                 <div class='mdl-card mdl-shadow--2dp'>
                     <div class='mdl-card__supporting-text'>
-                        <h5> {{ item.project_name }} &nbsp; <a>{{ item.project_url }}</a></h5>
+                        <h5> {{ item.project_name }} &nbsp; <a href="{{ item.project_url }}">{{ item.project_url }}</a></h5>
                         <div class='mdl-grid'>
                             <div class='mdl-cell mdl-cell--6-col'>
                                 <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect'>
@@ -88,8 +88,6 @@
                                 </button>
                             </div>
                         </div>
-
-
                     </div>
 
                 </div>
@@ -110,14 +108,18 @@
 </div>
 <script>
     var dialog = document.querySelector('dialog');
-    var showDialogButton = document.querySelector('.generate');
-    if (!dialog.showModal) {
-        dialogPolyfill.registerDialog(dialog);
+    if (! dialog.showModal) {
+      dialogPolyfill.registerDialog(dialog);
     }
-    showDialogButton.addEventListener('click', function () {
+    $('body').on("click",".generate", function(event){
         alert("generate");
+        var card = $(this).parent('div').parent('div').parent('div');
+        var url = card.children('h5').first().children('a').first().text();
+
+        alert("url: "+ url);
         dialog.showModal();
-        //generateAjax();
+
+
 
     });
 
