@@ -1,7 +1,7 @@
 
 from django.conf import settings
 import json
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -56,14 +56,26 @@ def main(request):
     )
 
 
+@csrf_exempt
 def generate_document(request):
     if request.is_ajax():
         if request.method == "POST":
-            print("GET")
-            # json_data = json.loads(request.body)
-            # print(json_data)
-    template = loader.get_template('AutoDoApp/main.html')
-    return HttpResponse(template.render(request=request))
+            _data = request.body.decode('utf-8')
+            url = json.loads(_data)
+            request.session['git_url'] = url['github_url']
+            request.session['project_name'] = "".join(request.session['git_url'].split('/')[-1:])
+            from AutoDoApp.Manager import ManagerThread
+            m = ManagerThread()
+            m.put_request(req=request.session['git_url'])
+
+            import time
+            time.sleep(10)  # Temporal time sleep
+
+            # Model code needed.
+            create_a_branch(access_token=request.session['oauth'], branch_name="refs/heads/tb1", request=request)
+            create_file_commit(request.session['oauth'], "refs/heads/tb1", request)
+            create_pull_request(request.session['oauth'], "tb1")
+    return JsonResponse({'success': True})
 
 
 def oauth_callback(request):
@@ -71,16 +83,11 @@ def oauth_callback(request):
     res = post_json(code)
     request.session['oauth'] = res  # Adding session
     project_list = github_info_parse(res, request)
+    if type(project_list) == int and project_list == -1:
+        return HttpResponseRedirect(reverse('login'))
     request.session['project_list'] = project_list
 
     return HttpResponseRedirect(reverse('main'))
-
-
-def integration_test(request):
-    template = loader.get_template('AutoDoApp/integration_test_page.html')
-    request.session['git_url'] = 'https://github.com/JunoJunho/AutoDoTestApp'
-    request.session['project_name'] = "".join(request.session['git_url'].split('/')[-1:])
-    return HttpResponse(template.render(request=request))
 
 
 def integration_process(request):
@@ -101,8 +108,13 @@ def github_info_parse(access_token, request):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
     str_json = string.json()
-    print(str_json)
-    email = str_json[0]['email']
+    try:
+        email = str_json[0]['email']
+        string = requests.get('https://api.github.com/user', new_condition)
+        str_json = string.json()
+        request.session['user_name'] = str_json['login']
+    except KeyError:
+        return -1
     project_list = []
 
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
@@ -138,9 +150,11 @@ def github_info_parse(access_token, request):
     return project_list
 
 
-def create_a_branch(access_token, branch_name):
+def create_a_branch(access_token, branch_name, request):
     condition = {"access_token": access_token}
-    res = requests.get("https://api.github.com/repos/JunoJunho/AutoDoTestApp/git/refs")  # Variable ##########
+    res_string = "https://api.github.com/repos/" + request.session['user_name'] \
+                 + "/" + request.session['project_name'] + "/git/refs"
+    res = requests.get(res_string)
     res = res.json()
     b_branch_name = ""
     for item in res:
@@ -151,17 +165,16 @@ def create_a_branch(access_token, branch_name):
     params = {"ref": branch_name,
               "sha": b_branch_name
               }
-    requests.post("https://api.github.com/repos/JunoJunho/AutoDoTestApp/git/refs",  # Variable ############
-                  params=condition,
-                  json=params)
+    requests.post(res_string, params=condition, json=params)
 
 
-def create_file_commit(access_token, branch_name):
+def create_file_commit(access_token, branch_name, request):
     import base64
     condition = {"access_token": access_token}
     readme_token = "/contents/README.md"
-    url = "https://api.github.com/repos/JunoJunho/AutoDoTestApp"
-    put_url = url + readme_token  # Variable ############
+    url = "https://api.github.com/repos/" + request.session['user_name'] + "/" \
+          + request.session['project_name']
+    put_url = url + readme_token
 
     # 1. Get readme.md
     readme_name = "/readme"
@@ -172,7 +185,7 @@ def create_file_commit(access_token, branch_name):
     readme_hash_code = res['sha']
     # Need to be fixed
     readme_dir = os.path.join(settings.BASE_DIR, "parsing_result")
-    readme_dir = os.path.join(readme_dir, "AutoDoTestApp.md")
+    readme_dir = os.path.join(readme_dir, request.session['project_name'] + ".md")
     f = open(readme_dir, 'r')
     lines = f.readlines()
     contents = ""
@@ -183,9 +196,9 @@ def create_file_commit(access_token, branch_name):
     # 2. setting params
     params = {  # This needs to be fixed.
         "message": "This is a test message",
-        "committer":{
-            "name": "Junho Kim",
-            "email": "wnsgh611@gmail.com"
+        "committer": {
+            "name": request.session['user_name'],
+            "email": request.session['email']
         },
         "content": replacing_content,
         "sha": readme_hash_code,

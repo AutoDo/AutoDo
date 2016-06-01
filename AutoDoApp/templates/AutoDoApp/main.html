@@ -3,7 +3,6 @@
 <head>
     <meta charset='UTF-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-
     {% load staticfiles %}
 
     <link rel='stylesheet'
@@ -16,6 +15,7 @@
     <link rel='stylesheet' href='{% static "AutoDoApp/css/dialog-polyfill.css" %}'>
     <script src="{% static 'AutoDoApp/js/main.js' %}"></script>
     <script src="{% static 'AutoDoApp/js/dialog-polyfill.js' %}"></script>
+    <script src="{% static 'AutoDoApp/js/js.cookie.js' %}"></script>
     <title>AutoDo</title>
 </head>
 <body class='project mdl-color--grey-100 mdl-color-text--grey-700 mdl-base'>
@@ -107,26 +107,35 @@
     </main>
 </div>
 <script>
+    $(document).ready(function(){
+        var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
     var dialog = document.querySelector('dialog');
     if (! dialog.showModal) {
-      dialogPolyfill.registerDialog(dialog);
+        dialogPolyfill.registerDialog(dialog);
     }
     $('body').on("click",".generate", function(event){
-        alert("generate");
+        {#        alert("generate");#}
         var card = $(this).parent('div').parent('div').parent('div');
         var url = card.children('h5').first().children('a').first().text();
 
-        alert("url: "+ url);
-        dialog.showModal();
-
-
-
+        generateAjax(url);
+        {#        alert("url: "+ url);#}
+        {#        dialog.showModal();#}
     });
 
-    function generateAjax() {
+    function generateAjax(url) {
         $.ajax({
-            url: "generate/",
+            url: "../generate/",
             type: "POST",
+            data: JSON.stringify({"github_url": url}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
                 dialog.showModal();
@@ -146,7 +155,10 @@
         });
     }
 
-
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
 </script>
 
 
