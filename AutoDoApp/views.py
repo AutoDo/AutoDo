@@ -56,6 +56,16 @@ def main(request):
     )
 
 
+def generate_document(request):
+    if request.is_ajax():
+        if request.method == "POST":
+            print("GET")
+            # json_data = json.loads(request.body)
+            # print(json_data)
+    template = loader.get_template('AutoDoApp/main.html')
+    return HttpResponse(template.render(request=request))
+
+
 def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
@@ -91,6 +101,7 @@ def github_info_parse(access_token, request):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
     str_json = string.json()
+    print(str_json)
     email = str_json[0]['email']
     project_list = []
 
