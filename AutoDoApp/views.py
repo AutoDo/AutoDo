@@ -7,16 +7,13 @@ import sys
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
-<<<<<<< HEAD
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
-=======
+
 import os
->>>>>>> f835f9ea8457a8181fbcd43373afb94bb57865dd
 
 import requests
 
@@ -183,12 +180,6 @@ def create_file_commit(access_token, branch_name):
                        params=condition,
                        json=params)
     print(res)
-
-
-def create_commit(access_token):
-    temp_objs = GithubInformation.objects.filter(repository_head__contains="develop")
-    for item in temp_objs:
-        print(item.parent_branch_sha)
 
 
 def get_hook_list(access_token, git_info):
