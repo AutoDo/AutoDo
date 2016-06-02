@@ -81,10 +81,18 @@ def generate_document(request):
             import time
             time.sleep(10)  # Temporal time sleep
 
-            # Model code needed.
-            create_a_branch(access_token=request.session['oauth'], branch_name="refs/heads/tb1", request=request)
-            create_file_commit(request.session['oauth'], "refs/heads/tb1", request)
-            create_pull_request(request.session['oauth'], "tb1")
+            p = Project.objects.filter(repository_url__exact=request.session['git_url']).first()
+            branch_id = p.branch_count
+            autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
+            branch_name = "refs/heads/" + autodo_prefix_branch_name
+            create_a_branch(access_token=request.session['oauth'],
+                            branch_name=branch_name,
+                            request=request)
+            create_file_commit(request.session['oauth'], branch_name, request)
+            create_pull_request(request.session['oauth'], autodo_prefix_branch_name)
+
+            # Update branch name
+            p.update()
     return JsonResponse({'success': True})
 
 
@@ -185,10 +193,9 @@ def create_file_commit(access_token, branch_name, request):
 
     # 1. Get readme.md
     readme_name = "/readme"
-    res = requests.get(url + readme_name,  # Variable ############
+    res = requests.get(url + readme_name,
                        params=condition)
     res = res.json()
-    print(res)
 
     readme_hash_code = res['sha']
     # Need to be fixed
@@ -203,7 +210,7 @@ def create_file_commit(access_token, branch_name, request):
 
     # 2. setting params
     params = {  # This needs to be fixed.
-        "message": "This is a test message",
+        "message": "PR " + branch_name,
         "committer": {
             "name": request.session['user_name'],
             "email": request.session['email']
@@ -212,13 +219,11 @@ def create_file_commit(access_token, branch_name, request):
         "sha": readme_hash_code,
         "branch": branch_name
     }
-    print("Put commit")
 
     # 3. PUT
     res = requests.put(url=put_url,
                        params=condition,
                        json=params)
-    print(res)
 
 
 def get_hook_list(access_token, git_info):
