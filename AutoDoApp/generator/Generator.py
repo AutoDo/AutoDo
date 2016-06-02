@@ -70,7 +70,9 @@ class Generator(GeneratorCommunicator):
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
+
                     readme.write("<img src='" + self.url + "'/>")
+
                     readme.write("</p>\n")
 
                 elif title == "Contributor":
@@ -128,7 +130,6 @@ class Generator(GeneratorCommunicator):
         )
         response = cloudinary.uploader.upload(self.png_dir + '.png', public_id=name)
         self.url = response['url']
-        print(self.url)
 
 
 if __name__ == "__main__":

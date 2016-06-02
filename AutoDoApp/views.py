@@ -1,11 +1,18 @@
 
 from django.conf import settings
+
 import json
+
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from .models import GithubInformation
+import cloudinary
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
+
 import os
 
 import requests
@@ -129,6 +136,7 @@ def github_info_parse(access_token, request):
         query_string = item['url'] + '/branches'
         string = requests.get(query_string, new_condition)
         branch_json = string.json()
+
         print(item['html_url'])
         # for branch_item in branch_json:
         #     query_string = item['url'] + '/branches/' + branch_item['name']
@@ -214,12 +222,6 @@ def create_file_commit(access_token, branch_name, request):
     print(res)
 
 
-def create_commit(access_token):
-    temp_objs = GithubInformation.objects.filter(repository_head__contains="develop")
-    for item in temp_objs:
-        print(item.parent_branch_sha)
-
-
 def get_hook_list(access_token, git_info):
     new_condition = {"access_token": access_token}
     string = requests.get(settings.GITHUB_API_URL + '/hooks', new_condition)
@@ -282,8 +284,6 @@ def create_hook(access_token):
     req.add_header("authorization", "token " + access_token)
     response = urllib.request.urlopen(req)
     string = response.read().decode('utf-8')
-    print(string)
-    return 1
 
 
 @csrf_exempt
