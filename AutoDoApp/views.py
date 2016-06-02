@@ -46,14 +46,15 @@ def main(request):
         return HttpResponseRedirect(reverse('login'))
     elif not request.session['oauth']:
         return HttpResponseRedirect(reverse('login'))
+
     template = loader.get_template('AutoDoApp/main.html')
     context = {
         'client_id': settings.GIT_HUB_URL
-    }
+        }
     return HttpResponse(template.render(
         context=context,
         request=request)
-    )
+        )
 
 
 @csrf_exempt
