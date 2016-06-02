@@ -4,7 +4,7 @@
 
 class GeneratorCommunicator(object):
 
-    def generate_document(self, name):
+    def generate_document(self, data, name, raw_api):
         raise NotImplementedError("You must implement this methods!")
 
     def send_complete_notification(self):
