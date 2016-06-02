@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 
-
 class GithubInformation(models.Model):
 
     email = models.CharField(max_length=200, default="none", primary_key=True)
