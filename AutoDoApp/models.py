@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 
+
 class GithubInformation(models.Model):
 
     email = models.CharField(max_length=200, default="none", primary_key=True)
@@ -27,9 +28,8 @@ class Project(models.Model):
     parent_branch_sha = models.CharField(max_length=200, default="none")
     tree_sha = models.CharField(max_length=200, default="none")
     user = models.ForeignKey('GithubInformation', on_delete=models.CASCADE)
-    branch_count = models.DecimalField(max_digits=19, default=0)
-    created_date = models.DateTimeField(default=timezone.now())
-    last_updated_date = models.DateTimeField(blank=True, null=True)
+    branch_count = models.IntegerField(default=0)
+    last_updated_date = models.DateTimeField(blank=True, null=True, default=timezone.now())
 
     def update(self):
         self.last_updated_date = timezone.now()
