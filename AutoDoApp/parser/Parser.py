@@ -25,7 +25,7 @@ class Parser(ParserCommunicator):
         raise NotImplementedError("Implement this method!")
 
     def parse_api(self):
-        raise NotImplementedError("Implement this method!")
+        return self.method_dict
 
     def parse_readme(self):
         raise NotImplementedError("Implement this method!")
@@ -46,7 +46,7 @@ class Parser(ParserCommunicator):
                 for invoked_method in self.instance_dict[instance_name]:
                     graph.append((caller_class_name, callee_class_name, invoked_method))
         name = "".join(git_url.split('/')[-1:])
-        tu = [graph, name]
+        tu = [graph, name, self.parse_api()]
         return tuple(tu)
 
     def __clone_repository(self, git_url):

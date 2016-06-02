@@ -32,7 +32,6 @@ class ManagerThread(object):
         while True:
             if not self.result_q.empty():
                 re = self.result_q.get()
-                self.generator.generate_graph(data=re[0],
-                                              name=re[1])
                 self.generator.generate_document(data=re[0],
-                                                 name=re[1])
+                                                 name=re[1],
+                                                 raw_api=re[2])

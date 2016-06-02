@@ -22,9 +22,9 @@ class Generator(GeneratorCommunicator):
         self.url = ""
         self.api = {}
 
-    def generate_document(self, data, name):
+    def generate_document(self, data, name, raw_api):
         self.__generate_graph(data, name)
-        self.__generate_api(data)
+        self.__generate_api(raw_api)
         self.__generate_readme_md(name)
 
     def send_complete_notification(self):
@@ -99,12 +99,17 @@ class Generator(GeneratorCommunicator):
     def generate_api(self, data):
         self.__generate_api(data)
 
-    def __generate_api(self, data):
+    def __generate_api(self, data):  # data -> dictionary
         self.api = {}
-        for i in range(len(data)):
-            if not(data[i][0] in self.api):
-                self.api[data[i][0]] = []
-            self.api[data[i][0]].append(data[i][2])
+        for each_key in data:
+            self.api[each_key] = []
+            for item in data[each_key]:
+                print(each_key + " + " + item)
+                self.api[each_key].append(item)
+        # for i in range(len(data)):
+        #     if not(data[i][0] in self.api):
+        #         self.api[data[i][0]] = []
+        #     self.api[data[i][0]].append(data[i][2])
 
     def generate_graph(self, data, name):
         self.__generate_graph(data, name)
