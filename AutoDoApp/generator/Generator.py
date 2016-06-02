@@ -100,7 +100,7 @@ class Generator(GeneratorCommunicator):
         self.__generate_api(data)
 
     def __generate_api(self, data):
-        self.api={}
+        self.api = {}
         for i in range(len(data)):
             if not self.api[data[i][0]]:
                 self.api[data[i][0]] = []
