@@ -32,7 +32,7 @@ def index(request, access_token=""):
     template = loader.get_template('AutoDoApp/index.html')
     context = {
         'access_token': access_token,
-        'client_id': settings.GIT_HUB_URL,
+        'client_id': settings.GIT_HUB_URL_JS,
     }
     return HttpResponse(template.render(context=context, request=request))
 
@@ -40,7 +40,7 @@ def index(request, access_token=""):
 def login(request):
     template = loader.get_template('AutoDoApp/login.html')
     context = {
-        'client_id': settings.GIT_HUB_URL
+        'client_id': settings.GIT_HUB_URL_JS
     }
     return HttpResponse(template.render(
         context=context,
@@ -55,7 +55,7 @@ def main(request):
         return HttpResponseRedirect(reverse('login'))
     template = loader.get_template('AutoDoApp/main.html')
     context = {
-        'client_id': settings.GIT_HUB_URL
+        'client_id': settings.GIT_HUB_URL_JS
     }
     return HttpResponse(template.render(
         context=context,

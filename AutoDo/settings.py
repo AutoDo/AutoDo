@@ -70,7 +70,7 @@ GITHUB_API_URL = "https://api.github.com/repos/JunoJunho/AutoDo"
 GITHUB_EXTENDED_PERMISSIONS = ['email']
 LOGIN_REDIRECT_URL = 'index.html'
 
-GIT_HUB_URL_JS = "http://143.248.47.86:8000"
+GIT_HUB_URL_JS = "http://143.248.49.134:8000"
 GITHUB_OAUTH_CLIENT_ID_JS='66c40334092cde4ea3bb'
 GITHUB_OAUTH_CLIENT_SECRET_JS='24076f838f57319415ed5c5946d59a8bb01ddaa3'
 GITHUB_API_URL_JS = "https://api.github.com/repos/3kd1000/AutoDo"

@@ -6,6 +6,7 @@ class GithubInformation(models.Model):
 
     email = models.CharField(max_length=200, default="none", primary_key=True)
     account_ID = models.CharField(max_length=200, default="none")
+
     # user_email = models.CharField(max_length=200, default="none")
     # repository_url = models.CharField(max_length=200)
     # repository_owner = models.CharField(max_length=200)
@@ -25,7 +26,7 @@ class Project(models.Model):
     repository_head = models.CharField(max_length=200)
     parent_branch_sha = models.CharField(max_length=200, default="none")
     tree_sha = models.CharField(max_length=200, default="none")
-    user = models.ForeignKey(GithubInformation, on_delete=models.CASCADE)
+    user = models.ForeignKey('GithubInformation', on_delete=models.CASCADE)
     branch_count = models.DecimalField(max_digits=19, default=0)
     created_date = models.DateTimeField(default=timezone.now())
     last_updated_date = models.DateTimeField(blank=True, null=True)
