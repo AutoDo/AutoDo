@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from .models import GithubInformation
+from .models import User
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
@@ -124,9 +124,9 @@ def github_info_parse(access_token, request):
         str_json = string.json()
         request.session['user_name'] = str_json['login']
 
-        u = GithubInformation.objects.filter(email=email).first()
+        u = User.objects.filter(email=email).first()
         if u is None:
-            u = GithubInformation()
+            u = User()
             u.email = email
             u.account_ID = request.session['user_name']
             u.save()
@@ -137,29 +137,18 @@ def github_info_parse(access_token, request):
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
     repo_json = repo_string.json()
 
-    delete_account = GithubInformation.objects.filter(user_email=email)
-    if not delete_account.__len__() == 0:
-        delete_account.delete()
+    u = User.objects.filter(account_ID__exact=request.session['user_name']).first()
 
     for item in repo_json:
-        query_string = item['url'] + '/branches'
-        string = requests.get(query_string, new_condition)
-        branch_json = string.json()
+        # print(item['html_url'])
+        p = Project.objects.filter(repository_url__exact=item['html_url']).first()
+        if p is None:
+            p = Project()
+            p.repository_url = item['html_url']
+            p.repository_owner = item['owner']['login']
+            p.user = u
+            p.save()
 
-        print(item['html_url'])
-        # for branch_item in branch_json:
-        #     query_string = item['url'] + '/branches/' + branch_item['name']
-        #     string = requests.get(query_string, new_condition)
-        #     single_branch_json = string.json()
-        #     print(single_branch_json)
-        #     for parent_item in single_branch_json['commit']['parents']:
-        #         print(parent_item)
-        #         temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
-        #                                          , repository_owner=item['owner']['login'],
-        #                                          repository_head=single_branch_json['name'], repository_base='master'
-        #                                          , parent_branch_sha=parent_item['sha'],
-        #                                          tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
-        #         temp_account.save()
         temp_dict = {'project_url': str(item['html_url']),
                      'project_name': "".join(str(item['html_url']).split('/')[-1:])}
         project_list.append(temp_dict)
