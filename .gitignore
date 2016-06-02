@@ -1,3 +1,6 @@
+/logs
+/Scripts
+/AutoDoApp/migrations
 # Created by https://www.gitignore.io/api/python,pycharm
 
 ### Python ###
