@@ -57,7 +57,7 @@ class Generator(GeneratorCommunicator):
         with open(readme_dir, "w") as readme:
             readme.write("# "+name+"\n")
             for title in readme_order:
-                #content = readme_data[title]
+                # content = readme_data[title]
                 readme.write("### "+title+"\n")
                 if title == "Introduction":
 
@@ -68,7 +68,7 @@ class Generator(GeneratorCommunicator):
                                  "in order to execute this project: \n\n")
                     readme.write("```"+"INPUT"+"```"+"\n")
 
-                #elif title == "Installation" :
+                # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
                 #    readme.write("``` code\n")
                 #    readme.write("```"+"\n")
@@ -94,7 +94,7 @@ class Generator(GeneratorCommunicator):
                 readme.write("\n\n")
 
             readme.close()
-        #raise NotImplementedError("You must implement this methods!")
+        # raise NotImplementedError("You must implement this methods!")
 
     def generate_api(self, data):
         self.__generate_api(data)
@@ -105,8 +105,8 @@ class Generator(GeneratorCommunicator):
             if not self.api[data[i][0]]:
                 self.api[data[i][0]] = []
             self.api[data[i][0]].append(data[i][2])
-        #print(self.api)
-    #raise NotImplementedError("You must implement this methods!")
+    #     print(self.api)
+    # raise NotImplementedError("You must implement this methods!")
 
     '''
         data = [("class A","class B","method A to B"),
