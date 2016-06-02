@@ -32,5 +32,6 @@ class Project(models.Model):
 
     def update(self):
         self.last_updated_date = timezone.now()
+        self.branch_count = self.branch_count.__add__(1)
         self.save()
 
