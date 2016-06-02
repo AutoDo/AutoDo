@@ -66,7 +66,7 @@ class Generator(GeneratorCommunicator):
 
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
-                    readme.write("```"+"INPUT"+"```"+"\n")
+                    readme.write("```\n"+"INPUT"+"\n```"+"\n")
 
                 # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
@@ -76,7 +76,7 @@ class Generator(GeneratorCommunicator):
                 elif title == "API Reference":
                     for class_name in sorted(self.api.keys()):
                         readme.write("##### " + class_name+"\n\n")
-                        for method in sorted(self.api[class_name]):
+                        for method in sorted(set(self.api[class_name])):
                             readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "**" + method + "**" + "\n\n")
 
                         readme.write("\n")
