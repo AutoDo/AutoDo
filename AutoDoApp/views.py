@@ -13,6 +13,8 @@ import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
 
+from AutoDoApp.models import Project
+
 import os
 
 import requests
@@ -121,6 +123,13 @@ def github_info_parse(access_token, request):
         string = requests.get('https://api.github.com/user', new_condition)
         str_json = string.json()
         request.session['user_name'] = str_json['login']
+
+        u = GithubInformation.objects.filter(email=email).first()
+        if u is None:
+            u = GithubInformation()
+            u.email = email
+            u.account_ID = request.session['user_name']
+            u.save()
     except KeyError:
         return -1
     project_list = []
@@ -191,6 +200,7 @@ def create_file_commit(access_token, branch_name, request):
                        params=condition)
     res = res.json()
     print(res)
+
     readme_hash_code = res['sha']
     # Need to be fixed
     readme_dir = os.path.join(settings.BASE_DIR, "parsing_result")

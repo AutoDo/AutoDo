@@ -2,8 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 
-
-class GithubInformation(models.Model):
+class GithubInformation(models.Model):  # Refactoring -> Change class name
 
     email = models.CharField(max_length=200, default="none", primary_key=True)
     account_ID = models.CharField(max_length=200, default="none")
@@ -23,10 +22,6 @@ class GithubInformation(models.Model):
 class Project(models.Model):
     repository_url = models.CharField(max_length=200)
     repository_owner = models.CharField(max_length=200)
-    repository_base = models.CharField(max_length=200)
-    repository_head = models.CharField(max_length=200)
-    parent_branch_sha = models.CharField(max_length=200, default="none")
-    tree_sha = models.CharField(max_length=200, default="none")
     user = models.ForeignKey('GithubInformation', on_delete=models.CASCADE)
     branch_count = models.IntegerField(default=0)
     last_updated_date = models.DateTimeField(blank=True, null=True, default=timezone.now())
