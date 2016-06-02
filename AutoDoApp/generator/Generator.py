@@ -102,22 +102,10 @@ class Generator(GeneratorCommunicator):
     def __generate_api(self, data):
         self.api = {}
         for i in range(len(data)):
-            if not self.api[data[i][0]]:
+            if not(data[i][0] in self.api):
                 self.api[data[i][0]] = []
             self.api[data[i][0]].append(data[i][2])
-    #     print(self.api)
-    # raise NotImplementedError("You must implement this methods!")
 
-    '''
-        data = [("class A","class B","method A to B"),
-               ("class B","class C","method B to C"),
-                ("class C","class A","method C to A"),
-                ("class C", "class A", "method C' to A'"),
-                ("class C", "class A", "method C'' to A''"),
-                ("class A","class A","method A to A"),
-                ("class B","class B","method B to B"),
-                ("class C","class C","method C to C")]
-    '''
     def generate_graph(self, data, name):
         self.__generate_graph(data, name)
 
