@@ -22,15 +22,15 @@ class Generator(GeneratorCommunicator):
         self.url = ""
         self.api = {}
 
-    def generate_document(self, data, name, raw_api):
+    def generate_document(self, data, name, raw_api, desc):
         self.__generate_graph(data, name)
         self.__generate_api(raw_api)
-        self.__generate_readme_md(name)
+        self.__generate_readme_md(name, desc)
 
     def send_complete_notification(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def __generate_readme_md(self, name):
+    def __generate_readme_md(self, name, desc):
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
@@ -61,7 +61,7 @@ class Generator(GeneratorCommunicator):
                 readme.write("### "+title+"\n")
                 if title == "Introduction":
 
-                    readme.write("TODO: Describe the about the project \n")
+                    readme.write(desc + " \n")
                     readme.write("***")
                 elif title == "Requirements" :
 
