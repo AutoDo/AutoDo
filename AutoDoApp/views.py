@@ -93,7 +93,7 @@ def generate_document(request):
 
             # Update branch name
             p.update()
-    return JsonResponse({'success': True})
+    return HttpResponse(json.dumps({'success': True}), content_type='application/json')
 
 
 def oauth_callback(request):

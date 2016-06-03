@@ -62,12 +62,13 @@ class Generator(GeneratorCommunicator):
                 if title == "Introduction":
 
                     readme.write("TODO: Describe the about the project \n")
+                    readme.write("***")
                 elif title == "Requirements" :
 
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
                     readme.write("```\n"+"INPUT"+"\n```"+"\n")
-
+                    readme.write("***")
                 # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
                 #    readme.write("``` code\n")
@@ -77,20 +78,23 @@ class Generator(GeneratorCommunicator):
                     for class_name in sorted(self.api.keys()):
                         readme.write("##### " + class_name+"\n\n")
                         for method in sorted(set(self.api[class_name])):
+                            if "__" in method:
+                                method = method.replace("__", "\__", 1)
                             readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "**" + method + "**" + "\n\n")
-
                         readme.write("\n")
+                    readme.write("***")
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
                     readme.write("<img src='" + self.url + "'/>")
                     readme.write("</p>\n")
-
+                    readme.write("***")
                 elif title == "Contributor":
                     readme.write("INPUT"+"\n")
-
+                    readme.write("***")
                 elif title == "License":
                     readme.write("INPUT"+"\n")
+                    readme.write("***")
                 readme.write("\n\n")
 
             readme.close()
