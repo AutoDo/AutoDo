@@ -3,7 +3,7 @@
  */
 $(document).ready(function() {
   $(".edit").click(function(event) {
-      alert("edit");
+      // alert("edit");
     event.preventDefault();
     var intro = $(this).parent("div");
     var content = intro.children("p").first().html().replace(/<br>/g,"\n");
@@ -21,7 +21,7 @@ $(document).ready(function() {
   });
     
   $('.mdl-card__actions').on("click",".save",function(event) {
-      alert("save");
+      // alert("save");
     event.preventDefault();
     var form = $(this).parent("form");
     var intro = form.prev();

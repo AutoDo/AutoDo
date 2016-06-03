@@ -74,9 +74,10 @@ def generate_document(request):
             url = json.loads(_data)
             request.session['git_url'] = url['github_url']
             request.session['project_name'] = "".join(request.session['git_url'].split('/')[-1:])
+            proj_desc = url['desc']
             from AutoDoApp.Manager import ManagerThread
             m = ManagerThread()
-            m.put_request(req=request.session['git_url'])
+            m.put_request(req=request.session['git_url'], desc=proj_desc)
 
             import time
             time.sleep(10)  # Temporal time sleep
@@ -93,7 +94,8 @@ def generate_document(request):
 
             # Update branch name
             p.update()
-    return JsonResponse({'success': True})
+            p.desc_update(proj_desc)
+    return HttpResponse(json.dumps({'success': True}), content_type='application/json')
 
 
 def oauth_callback(request):
@@ -150,15 +152,18 @@ def github_info_parse(access_token, request):
     for item in repo_json:
         # print(item['html_url'])
         p = Project.objects.filter(repository_url__exact=item['html_url']).first()
+        p_name = "".join(str(item['html_url']).split('/')[-1:])
         if p is None:
             p = Project()
             p.repository_url = item['html_url']
             p.repository_owner = item['owner']['login']
+            p.description = p_name
             p.user = u
             p.save()
 
         temp_dict = {'project_url': str(item['html_url']),
-                     'project_name': "".join(str(item['html_url']).split('/')[-1:])}
+                     'project_name': p_name,
+                     'project_desc': p.description}
         project_list.append(temp_dict)
 
     request.session['email'] = email

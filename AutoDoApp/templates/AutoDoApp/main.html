@@ -80,10 +80,10 @@
                             </div>
                         </div>
 
-                        <div class='mdl-card__actions mdl-card--border'>
+                        <div class='mdl-card__actions mdl-card--border' id="desc">
                             <h6>Introduction</h6>
                             <div>
-                                <p>Project information</p>
+                                <p>{{ item.project_desc }}</p>
                                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit'>edit
                                 </button>
                             </div>
@@ -125,19 +125,22 @@
         {#        alert("generate");#}
         var card = $(this).parent('div').parent('div').parent('div');
         var url = card.children('h5').first().children('a').first().text();
+        var project_description = card.children('#desc').first().children('div').first().children('p').first().text();
 
-        generateAjax(url);
+        generateAjax(url, project_description);
         {#        alert("url: "+ url);#}
         {#        dialog.showModal();#}
     });
 
-    function generateAjax(url) {
+    function generateAjax(url, project_description) {
         $.ajax({
             url: "../generate/",
             type: "POST",
-            data: JSON.stringify({"github_url": url}),
+            data: JSON.stringify({"github_url": url,
+                "desc": project_description}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
+{#                alert(project_description);#}
                 dialog.showModal();
             },
             error: function (result) {
