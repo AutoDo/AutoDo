@@ -302,5 +302,21 @@ def hook_callback(request, *args, **kwargs):
     print("hook here")
     data = request.read().decode('utf-8')
     res = json.loads(data)
-    return res['repository']['html_url']
+    p = Project.objects.filter(repository_url__exact=res['repository']['html_url']).first()
+    from AutoDoApp.Manager import ManagerThread
+    m = ManagerThread()
+    m.put_request(req=request.session['git_url'], desc=p.description)
+
+    import time
+    time.sleep(10)  # Temporal time sleep
+    branch_id = p.branch_count
+    autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
+    branch_name = "refs/heads/" + autodo_prefix_branch_name
+    create_a_branch(access_token=request.session['oauth'],
+                    branch_name=branch_name,
+                    request=request)
+    create_file_commit(request.session['oauth'], branch_name, request) # OAuth call back token
+    create_pull_request(request.session['oauth'], autodo_prefix_branch_name, request)
+    p.update()
+    return
 

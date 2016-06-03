@@ -53,7 +53,7 @@ class Generator(GeneratorCommunicator):
                        "License": "get license of the project"}
         '''
 
-        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "Contributor", "License"]
+        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "License"]
         with open(readme_dir, "w") as readme:
             readme.write("# "+name+"\n")
             for title in readme_order:
@@ -88,9 +88,6 @@ class Generator(GeneratorCommunicator):
                     readme.write("<p align='center'>")
                     readme.write("<img src='" + self.url + "'/>")
                     readme.write("</p>\n")
-                    readme.write("***")
-                elif title == "Contributor":
-                    readme.write("INPUT"+"\n")
                     readme.write("***")
                 elif title == "License":
                     readme.write("INPUT"+"\n")
