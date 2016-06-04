@@ -9,9 +9,6 @@ from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User
-import cloudinary
-from cloudinary.uploader import upload
-from cloudinary.utils import cloudinary_url
 
 from AutoDoApp.models import Project
 
