@@ -43,7 +43,8 @@ class ManagerThread(object):
                                                  name=re[1],
                                                  raw_api=re[2],
                                                  desc=self.proj_desc,
-                                                 licen=self.proj_license)
+                                                 licen=self.proj_license,
+                                                 req=re[3])
                 break
         for t in self.threads:
             t.join()
