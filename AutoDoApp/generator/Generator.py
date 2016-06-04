@@ -68,8 +68,11 @@ class Generator(GeneratorCommunicator):
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
                     if len(req) < 1:
+                        print("No req")
                         readme.write("```\n"+"No requirements"+"\n```"+"\n")
-                    readme.write("```\n"+req+"\n```"+"\n")
+                    else:
+                        for each in req:
+                            readme.write("```\n"+each+"\n```"+"\n")
                     readme.write("***")
                 # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
@@ -94,6 +97,7 @@ class Generator(GeneratorCommunicator):
                 elif title == "License":
                     readme.write(licen+"\n")
                     readme.write("***")
+                    print("license is added")
                 readme.write("\n\n")
 
             readme.close()

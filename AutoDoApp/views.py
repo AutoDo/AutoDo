@@ -78,7 +78,7 @@ def generate_document(request):
             from AutoDoApp.Manager import ManagerThread
             m = ManagerThread()
             p = Project.objects.filter(repository_url__exact=request.session['git_url']).first()
-            m.put_request(req=request.session['git_url'], desc=proj_desc, licen=p.project_license)
+            m.put_request(req=request.session['git_url'], desc=proj_desc)
 
             import time
             time.sleep(10)  # Temporal time sleep
