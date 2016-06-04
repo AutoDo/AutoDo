@@ -11,11 +11,15 @@
     <link rel='stylesheet' href='https://code.getmdl.io/1.1.3/material.indigo-pink.min.css'>
     <script defer src='https://code.getmdl.io/1.1.3/material.min.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js'></script>
+
+
     <link rel='stylesheet' href='{% static "AutoDoApp/css/styles.css" %}'>
     <link rel='stylesheet' href='{% static "AutoDoApp/css/dialog-polyfill.css" %}'>
     <script src="{% static 'AutoDoApp/js/main.js' %}"></script>
     <script src="{% static 'AutoDoApp/js/dialog-polyfill.js' %}"></script>
     <script src="{% static 'AutoDoApp/js/js.cookie.js' %}"></script>
+
+
     <title>AutoDo</title>
 </head>
 <body class='project mdl-color--grey-100 mdl-color-text--grey-700 mdl-base'>
@@ -51,13 +55,13 @@
                         <div class='mdl-grid'>
                             <div class='mdl-cell mdl-cell--6-col'>
                                 <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect'>
-                                    <span class='mdl-switch__label'>Update Periodically</span>
+                                    <span class='mdl-switch__label'>Update on Every Commit</span>
                                     <input type='checkbox' class='mdl-switch__input' checked>
                                 </label>
                             </div>
                             <div class='mdl-cell mdl-cell--6-col right'>
                                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect refresh'>
-                                    refresh<i class='material-icons'>autorenew</i>
+                                    Apply Setting<i class='material-icons'>autorenew</i>
                                 </button>
 
                             </div>
@@ -67,26 +71,42 @@
                                 Recent Update &nbsp; 2016.05.27
                             </div>
                             <div class='mdl-cell mdl-cell--6-col right'>
+                                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate'>
+                                    Generate Document NOW
+                                </button>
+
+                            </div>
+
+                            <!--
+                            <div class='mdl-cell mdl-cell--6-col right'>
                                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect manage'>
                                     Mange Project<i class='material-icons'>build</i>
                                 </button>
                             </div>
+                            --->
                         </div>
-                        <div class='mdl-grid'>
+                        <!--<div class='mdl-grid'>
                             <div class='mdl-cell mdl-cell--12-col label right'>
                                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate'>
                                     Generate Document NOW
                                 </button>
                             </div>
                         </div>
+                        -->
 
                         <div class='mdl-card__actions mdl-card--border'>
-                            <h6>Introduction</h6>
-                            <div>
-                                <p>Project information</p>
-                                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit'>edit
-                                </button>
+                            <div class='mdl-grid p0'>
+                               <div class="mdl-cell mdl-cell--6-col p0">
+                                   <h6>Introduction</h6>
+                               </div>
+                                <div class="mdl-cell mdl-cell--6-col right p0">
+
+                                    <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit'>edit</button>
+                                    <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect save' style="display:none;">save</button>
+                                </div>
                             </div>
+
+                            <p>Project information</p>
                         </div>
                     </div>
 
