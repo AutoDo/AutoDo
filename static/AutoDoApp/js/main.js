@@ -2,8 +2,13 @@
  * Created by 명 on 2016-05-27.
  */
 $(document).ready(function() {
+<<<<<<< HEAD
   $("body").on("click",".edit",function(event) {
       alert("edit");
+=======
+  $(".edit").click(function(event) {
+      // alert("edit");
+>>>>>>> f2826cbb6d8eb38d94263815e7cfb5a8c2889d95
     event.preventDefault();
     var edit = $(this); 
     var save =edit.next();
@@ -23,8 +28,13 @@ $(document).ready(function() {
 
   });
     
+<<<<<<< HEAD
   $('body').on("click",".save",function(event) {
       alert("save");
+=======
+  $('.mdl-card__actions').on("click",".save",function(event) {
+      // alert("save");
+>>>>>>> f2826cbb6d8eb38d94263815e7cfb5a8c2889d95
     event.preventDefault();
     var save = $(this);
     var edit = $(this).prev();

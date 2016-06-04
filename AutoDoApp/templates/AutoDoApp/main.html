@@ -94,6 +94,7 @@
                         </div>
                         -->
 
+<<<<<<< HEAD
                         <div class='mdl-card__actions mdl-card--border'>
                             <div class='mdl-grid p0'>
                                <div class="mdl-cell mdl-cell--6-col p0">
@@ -104,6 +105,14 @@
                                     <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit'>edit</button>
                                     <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect save' style="display:none;">save</button>
                                 </div>
+=======
+                        <div class='mdl-card__actions mdl-card--border' id="desc">
+                            <h6>Introduction</h6>
+                            <div>
+                                <p>{{ item.project_desc }}</p>
+                                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect edit'>edit
+                                </button>
+>>>>>>> f2826cbb6d8eb38d94263815e7cfb5a8c2889d95
                             </div>
 
                             <p>Project information</p>
@@ -145,19 +154,22 @@
         {#        alert("generate");#}
         var card = $(this).parent('div').parent('div').parent('div');
         var url = card.children('h5').first().children('a').first().text();
+        var project_description = card.children('#desc').first().children('div').first().children('p').first().text();
 
-        generateAjax(url);
+        generateAjax(url, project_description);
         {#        alert("url: "+ url);#}
         {#        dialog.showModal();#}
     });
 
-    function generateAjax(url) {
+    function generateAjax(url, project_description) {
         $.ajax({
             url: "../generate/",
             type: "POST",
-            data: JSON.stringify({"github_url": url}),
+            data: JSON.stringify({"github_url": url,
+                "desc": project_description}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
+{#                alert(project_description);#}
                 dialog.showModal();
             },
             error: function (result) {
