@@ -14,6 +14,7 @@ class ManagerThread(object):
         self.result_q = Queue()
         self.threads = []
         self.proj_desc = ""
+        self.proj_license = ""
         for method in [self.parse_project, self.generate_document]:
             t = threading.Thread(target=method)
             t.daemon = True
@@ -21,8 +22,9 @@ class ManagerThread(object):
             self.threads.append(t)
             t.start()
 
-    def put_request(self, req, desc):
+    def put_request(self, req, desc, licen):
         self.proj_desc = desc
+        self.proj_license = licen
         self.task_q.put(req)
 
     def parse_project(self):
@@ -40,7 +42,8 @@ class ManagerThread(object):
                 self.generator.generate_document(data=re[0],
                                                  name=re[1],
                                                  raw_api=re[2],
-                                                 desc=self.proj_desc)
+                                                 desc=self.proj_desc,
+                                                 licen=self.proj_license)
                 break
         for t in self.threads:
             t.join()
