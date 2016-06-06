@@ -8,10 +8,12 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from .models import GithubInformation
+from .models import User
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
+
+from AutoDoApp.models import Project
 
 import os
 
@@ -32,7 +34,7 @@ def index(request, access_token=""):
     template = loader.get_template('AutoDoApp/index.html')
     context = {
         'access_token': access_token,
-        'client_id': settings.GIT_HUB_URL_JS,
+        'client_id': settings.GIT_HUB_URL,
     }
     return HttpResponse(template.render(context=context, request=request))
 
@@ -40,7 +42,7 @@ def index(request, access_token=""):
 def login(request):
     template = loader.get_template('AutoDoApp/login.html')
     context = {
-        'client_id': settings.GIT_HUB_URL_JS
+        'client_id': settings.GIT_HUB_URL
     }
     return HttpResponse(template.render(
         context=context,
@@ -53,14 +55,15 @@ def main(request):
         return HttpResponseRedirect(reverse('login'))
     elif not request.session['oauth']:
         return HttpResponseRedirect(reverse('login'))
+
     template = loader.get_template('AutoDoApp/main.html')
     context = {
-        'client_id': settings.GIT_HUB_URL_JS
-    }
+        'client_id': settings.GIT_HUB_URL
+        }
     return HttpResponse(template.render(
         context=context,
         request=request)
-    )
+        )
 
 
 @csrf_exempt
@@ -78,10 +81,18 @@ def generate_document(request):
             import time
             time.sleep(10)  # Temporal time sleep
 
-            # Model code needed.
-            create_a_branch(access_token=request.session['oauth'], branch_name="refs/heads/tb1", request=request)
-            create_file_commit(request.session['oauth'], "refs/heads/tb1", request)
-            create_pull_request(request.session['oauth'], "tb1")
+            p = Project.objects.filter(repository_url__exact=request.session['git_url']).first()
+            branch_id = p.branch_count
+            autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
+            branch_name = "refs/heads/" + autodo_prefix_branch_name
+            create_a_branch(access_token=request.session['oauth'],
+                            branch_name=branch_name,
+                            request=request)
+            create_file_commit(request.session['oauth'], branch_name, request)
+            create_pull_request(request.session['oauth'], autodo_prefix_branch_name, request)
+
+            # Update branch name
+            p.update()
     return JsonResponse({'success': True})
 
 
@@ -120,6 +131,13 @@ def github_info_parse(access_token, request):
         string = requests.get('https://api.github.com/user', new_condition)
         str_json = string.json()
         request.session['user_name'] = str_json['login']
+
+        u = User.objects.filter(email=email).first()
+        if u is None:
+            u = User()
+            u.email = email
+            u.account_ID = request.session['user_name']
+            u.save()
     except KeyError:
         return -1
     project_list = []
@@ -127,29 +145,18 @@ def github_info_parse(access_token, request):
     repo_string = requests.get('https://api.github.com/user/repos', new_condition)
     repo_json = repo_string.json()
 
-    delete_account = GithubInformation.objects.filter(user_email=email)
-    if not delete_account.__len__() == 0:
-        delete_account.delete()
+    u = User.objects.filter(account_ID__exact=request.session['user_name']).first()
 
     for item in repo_json:
-        query_string = item['url'] + '/branches'
-        string = requests.get(query_string, new_condition)
-        branch_json = string.json()
+        # print(item['html_url'])
+        p = Project.objects.filter(repository_url__exact=item['html_url']).first()
+        if p is None:
+            p = Project()
+            p.repository_url = item['html_url']
+            p.repository_owner = item['owner']['login']
+            p.user = u
+            p.save()
 
-        print(item['html_url'])
-        # for branch_item in branch_json:
-        #     query_string = item['url'] + '/branches/' + branch_item['name']
-        #     string = requests.get(query_string, new_condition)
-        #     single_branch_json = string.json()
-        #     print(single_branch_json)
-        #     for parent_item in single_branch_json['commit']['parents']:
-        #         print(parent_item)
-        #         temp_account = GithubInformation(user_email=email, repository_url=item['html_url']
-        #                                          , repository_owner=item['owner']['login'],
-        #                                          repository_head=single_branch_json['name'], repository_base='master'
-        #                                          , parent_branch_sha=parent_item['sha'],
-        #                                          tree_sha=single_branch_json['commit']['commit']['tree']['sha'])
-        #         temp_account.save()
         temp_dict = {'project_url': str(item['html_url']),
                      'project_name': "".join(str(item['html_url']).split('/')[-1:])}
         project_list.append(temp_dict)
@@ -186,10 +193,10 @@ def create_file_commit(access_token, branch_name, request):
 
     # 1. Get readme.md
     readme_name = "/readme"
-    res = requests.get(url + readme_name,  # Variable ############
+    res = requests.get(url + readme_name,
                        params=condition)
     res = res.json()
-    print(res)
+
     readme_hash_code = res['sha']
     # Need to be fixed
     readme_dir = os.path.join(settings.BASE_DIR, "parsing_result")
@@ -203,7 +210,7 @@ def create_file_commit(access_token, branch_name, request):
 
     # 2. setting params
     params = {  # This needs to be fixed.
-        "message": "This is a test message",
+        "message": "PR " + branch_name,
         "committer": {
             "name": request.session['user_name'],
             "email": request.session['email']
@@ -212,13 +219,11 @@ def create_file_commit(access_token, branch_name, request):
         "sha": readme_hash_code,
         "branch": branch_name
     }
-    print("Put commit")
 
     # 3. PUT
     res = requests.put(url=put_url,
                        params=condition,
                        json=params)
-    print(res)
 
 
 def get_hook_list(access_token, git_info):
@@ -247,16 +252,18 @@ def post_json(code):
     return access_token
 
 
-def create_pull_request(access_token, branch_name):
+def create_pull_request(access_token, branch_name, request):
     condition = {"access_token": access_token}
     params = {
-        "title": 'test',
-        "body": 'please pull this request',
+        "title": '[AutoDo] Document generated ' + branch_name,
+        "body": 'This is generated by AutoDo system.',
         "head": branch_name,
         "base": "master"
     }
     print("Put PR")
-    res = requests.post("https://api.github.com/repos/JunoJunho/AutoDoTestApp/pulls",
+    api_url = "https://api.github.com/repos/" + request.session['user_name'] + "/" \
+              + request.session['project_name']
+    res = requests.post(api_url + "/pulls",
                         params=condition,
                         json=params)
 
