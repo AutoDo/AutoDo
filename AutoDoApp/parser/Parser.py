@@ -52,6 +52,10 @@ class Parser(ParserCommunicator):
         return tuple(tu)
 
     def __clone_repository(self, git_url):
+
+        if "github.com" not in git_url:
+            raise ValueError("Wrong Github Address!")
+
         git_dir = os.path.join(settings.BASE_DIR, "git_project")
         git_dir = os.path.join(git_dir, "".join(git_url.split('/')[-1:]))
         self.git_dir = git_dir
