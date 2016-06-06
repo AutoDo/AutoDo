@@ -20,11 +20,21 @@ class Generator(GeneratorCommunicator):
         self.png_dir = ""
         self.git_project_name = ""
         self.url = ""
+        self.api = {}
 
-    def generate_document(self, name):
+    def generate_document(self, data, name, raw_api, desc):
+        self.__generate_graph(data, name)
+        self.__generate_api(raw_api)
+        self.__generate_readme_md(name, desc)
+
+    def send_complete_notification(self):
+        raise NotImplementedError("You must implement this methods!")
+
+    def __generate_readme_md(self, name, desc):
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
+        '''
         readme_data = {"Introduction": "project",
                        "Requirements": "information need to execute",
                        "API Reference": {"class1":
@@ -41,66 +51,67 @@ class Generator(GeneratorCommunicator):
                        "Dependency graph": "image of dependency graph",
                        "Contributor": "get recent participant of the projects",
                        "License": "get license of the project"}
+        '''
 
-        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "Contributor", "License"]
+        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "License"]
         with open(readme_dir, "w") as readme:
-
+            readme.write("# "+name+"\n")
             for title in readme_order:
-                content = readme_data[title]
-                readme.write("## " + title + "\n")
+                # content = readme_data[title]
+                readme.write("### "+title+"\n")
                 if title == "Introduction":
-                    readme.write("TODO: Describe the about the project \n")
+
+                    readme.write(desc + " \n")
+                    readme.write("***")
                 elif title == "Requirements" :
+
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
-                    readme.write("```"+content+"```"+"\n")
-
-                #elif title == "Installation" :
+                    readme.write("```\n"+"INPUT"+"\n```"+"\n")
+                    readme.write("***")
+                # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
                 #    readme.write("``` code\n")
                 #    readme.write("```"+"\n")
 
                 elif title == "API Reference":
-                    for class_name, method_dict in content.items():
-                        readme.write("#### " + class_name+"\n\n")
-                        for method, desc in method_dict.items():
+                    for class_name in sorted(self.api.keys()):
+                        readme.write("##### " + class_name+"\n\n")
+                        for method in sorted(set(self.api[class_name])):
+                            if "__" in method:
+                                method = method.replace("__", "\__", 1)
                             readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "**" + method + "**" + "\n\n")
-
                         readme.write("\n")
+                    readme.write("***")
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
                     readme.write("<img src='" + self.url + "'/>")
                     readme.write("</p>\n")
-
-                elif title == "Contributor":
-                    readme.write(content+"\n")
-
+                    readme.write("***")
                 elif title == "License":
-                    readme.write(content+"\n")
+                    readme.write("INPUT"+"\n")
+                    readme.write("***")
                 readme.write("\n\n")
 
             readme.close()
+        # raise NotImplementedError("You must implement this methods!")
 
-    def send_complete_notification(self):
-        raise NotImplementedError("You must implement this methods!")
+    def generate_api(self, data):
+        self.__generate_api(data)
 
-    def generate_readme_md(self):
-        raise NotImplementedError("You must implement this methods!")
+    def __generate_api(self, data):  # data -> dictionary
+        self.api = {}
+        for each_key in data:
+            self.api[each_key] = []
+            for item in data[each_key]:
+                print(each_key + " + " + item)
+                self.api[each_key].append(item)
+        # for i in range(len(data)):
+        #     if not(data[i][0] in self.api):
+        #         self.api[data[i][0]] = []
+        #     self.api[data[i][0]].append(data[i][2])
 
-    def generate_api(self):
-        raise NotImplementedError("You must implement this methods!")
-
-    '''
-        data = [("class A","class B","method A to B"),
-               ("class B","class C","method B to C"),
-                ("class C","class A","method C to A"),
-                ("class C", "class A", "method C' to A'"),
-                ("class C", "class A", "method C'' to A''"),
-                ("class A","class A","method A to A"),
-                ("class B","class B","method B to B"),
-                ("class C","class C","method C to C")]
-    '''
     def generate_graph(self, data, name):
         self.__generate_graph(data, name)
 
@@ -137,6 +148,5 @@ if __name__ == "__main__":
     p = Parser()
     re = p.parse_project(git_url="https://github.com/JunoJunho/AutoDoAppTest")
     g = Generator()
-    g.generate_graph(re[0],re[1])
-    g.generate_document(re[1])
+    g.generate_document(re[0], re[1])
 
