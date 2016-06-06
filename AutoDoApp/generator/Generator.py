@@ -22,15 +22,15 @@ class Generator(GeneratorCommunicator):
         self.url = ""
         self.api = {}
 
-    def generate_document(self, data, name, raw_api, desc):
+    def generate_document(self, data, name, raw_api, desc, licen, req):
         self.__generate_graph(data, name)
         self.__generate_api(raw_api)
-        self.__generate_readme_md(name, desc)
+        self.__generate_readme_md(name, desc, licen, req)
 
     def send_complete_notification(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def __generate_readme_md(self, name, desc):
+    def __generate_readme_md(self, name, desc, licen, req):
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
@@ -63,11 +63,16 @@ class Generator(GeneratorCommunicator):
 
                     readme.write(desc + " \n")
                     readme.write("***")
-                elif title == "Requirements" :
+                elif title == "Requirements":
 
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
-                    readme.write("```\n"+"INPUT"+"\n```"+"\n")
+                    if len(req) < 1:
+                        print("No req")
+                        readme.write("```\n"+"No requirements"+"\n```"+"\n")
+                    else:
+                        for each in req:
+                            readme.write("```\n"+each+"\n```"+"\n")
                     readme.write("***")
                 # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
@@ -90,8 +95,9 @@ class Generator(GeneratorCommunicator):
                     readme.write("</p>\n")
                     readme.write("***")
                 elif title == "License":
-                    readme.write("INPUT"+"\n")
+                    readme.write(licen+"\n")
                     readme.write("***")
+                    print("license is added")
                 readme.write("\n\n")
 
             readme.close()
