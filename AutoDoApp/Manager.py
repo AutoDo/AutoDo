@@ -12,13 +12,17 @@ class ManagerThread(object):
         self.generator = Generator()
         self.task_q = Queue()
         self.result_q = Queue()
+        self.threads = []
+        self.proj_desc = ""
         for method in [self.parse_project, self.generate_document]:
             t = threading.Thread(target=method)
             t.daemon = True
             print("Method " + str(method) + " started")
+            self.threads.append(t)
             t.start()
 
-    def put_request(self, req):
+    def put_request(self, req, desc):
+        self.proj_desc = desc
         self.task_q.put(req)
 
     def parse_project(self):
@@ -27,6 +31,7 @@ class ManagerThread(object):
             if not self.task_q.empty():
                 tu = self.parser.parse_project(self.task_q.get())
                 self.result_q.put(tu)
+                break
 
     def generate_document(self):
         while True:
@@ -34,4 +39,8 @@ class ManagerThread(object):
                 re = self.result_q.get()
                 self.generator.generate_document(data=re[0],
                                                  name=re[1],
-                                                 raw_api=re[2])
+                                                 raw_api=re[2],
+                                                 desc=self.proj_desc)
+                break
+        for t in self.threads:
+            t.join()

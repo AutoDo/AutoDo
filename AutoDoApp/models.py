@@ -26,6 +26,7 @@ class User(models.Model):  # Refactoring -> Change class name
 class Project(models.Model):
     repository_url = models.CharField(max_length=200)
     repository_owner = models.CharField(max_length=200)
+    description = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     branch_count = models.IntegerField(default=0)
     last_updated_date = models.DateTimeField(blank=True, null=True, default=timezone.now())
@@ -38,4 +39,8 @@ class Project(models.Model):
 
     def enroll(self):
         self.is_enrolled = True
+        self.save()
+
+    def desc_update(self, desc):
+        self.description = desc
         self.save()

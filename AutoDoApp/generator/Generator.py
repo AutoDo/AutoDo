@@ -22,15 +22,15 @@ class Generator(GeneratorCommunicator):
         self.url = ""
         self.api = {}
 
-    def generate_document(self, data, name, raw_api):
+    def generate_document(self, data, name, raw_api, desc):
         self.__generate_graph(data, name)
         self.__generate_api(raw_api)
-        self.__generate_readme_md(name)
+        self.__generate_readme_md(name, desc)
 
     def send_complete_notification(self):
         raise NotImplementedError("You must implement this methods!")
 
-    def __generate_readme_md(self, name):
+    def __generate_readme_md(self, name, desc):
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
@@ -53,7 +53,7 @@ class Generator(GeneratorCommunicator):
                        "License": "get license of the project"}
         '''
 
-        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "Contributor", "License"]
+        readme_order = ["Introduction", "Requirements", "API Reference", "Dependency graph", "License"]
         with open(readme_dir, "w") as readme:
             readme.write("# "+name+"\n")
             for title in readme_order:
@@ -61,13 +61,14 @@ class Generator(GeneratorCommunicator):
                 readme.write("### "+title+"\n")
                 if title == "Introduction":
 
-                    readme.write("TODO: Describe the about the project \n")
+                    readme.write(desc + " \n")
+                    readme.write("***")
                 elif title == "Requirements" :
 
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
-                    readme.write("```"+"INPUT"+"```"+"\n")
-
+                    readme.write("```\n"+"INPUT"+"\n```"+"\n")
+                    readme.write("***")
                 # elif title == "Installation" :
                 #    readme.write("TODO: Describe the installation process\n")
                 #    readme.write("``` code\n")
@@ -76,21 +77,21 @@ class Generator(GeneratorCommunicator):
                 elif title == "API Reference":
                     for class_name in sorted(self.api.keys()):
                         readme.write("##### " + class_name+"\n\n")
-                        for method in sorted(self.api[class_name]):
+                        for method in sorted(set(self.api[class_name])):
+                            if "__" in method:
+                                method = method.replace("__", "\__", 1)
                             readme.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "**" + method + "**" + "\n\n")
-
                         readme.write("\n")
+                    readme.write("***")
                 elif title == "Dependency graph":
                     # graph file name
                     readme.write("<p align='center'>")
                     readme.write("<img src='" + self.url + "'/>")
                     readme.write("</p>\n")
-
-                elif title == "Contributor":
-                    readme.write("INPUT"+"\n")
-
+                    readme.write("***")
                 elif title == "License":
                     readme.write("INPUT"+"\n")
+                    readme.write("***")
                 readme.write("\n\n")
 
             readme.close()
