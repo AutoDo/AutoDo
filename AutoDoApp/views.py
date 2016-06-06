@@ -9,11 +9,7 @@ from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User
-import cloudinary
-from cloudinary.uploader import upload
-from cloudinary.utils import cloudinary_url
-
-from AutoDoApp.models import Project
+from .models import Project
 
 import os
 
@@ -36,6 +32,7 @@ def index(request, access_token=""):
         'access_token': access_token,
         'client_id': settings.GIT_HUB_URL,
     }
+
     return HttpResponse(template.render(context=context, request=request))
 
 
@@ -44,6 +41,7 @@ def login(request):
     context = {
         'client_id': settings.GIT_HUB_URL
     }
+
     return HttpResponse(template.render(
         context=context,
         request=request)
@@ -139,6 +137,7 @@ def github_info_parse(access_token, request):
             u = User()
             u.email = email
             u.account_ID = request.session['user_name']
+            u.access_token = access_token
             u.save()
     except KeyError:
         return -1
@@ -299,24 +298,30 @@ def create_hook(access_token):
 
 @csrf_exempt
 def hook_callback(request, *args, **kwargs):
+    import json
+    import urllib.request
     print("hook here")
     data = request.read().decode('utf-8')
     res = json.loads(data)
+    email = res['commits'][0]['author']['email']
+    u = User.objects.filter(email__exact=email).first()
     p = Project.objects.filter(repository_url__exact=res['repository']['html_url']).first()
     from AutoDoApp.Manager import ManagerThread
     m = ManagerThread()
-    m.put_request(req=request.session['git_url'], desc=p.description)
+    m.put_request(req=res['repository']['html_url'], desc=p.description)
+
+    token = u.access_token
 
     import time
     time.sleep(10)  # Temporal time sleep
     branch_id = p.branch_count
     autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
     branch_name = "refs/heads/" + autodo_prefix_branch_name
-    create_a_branch(access_token=request.session['oauth'],
+    create_a_branch(access_token=token,
                     branch_name=branch_name,
                     request=request)
-    create_file_commit(request.session['oauth'], branch_name, request) # OAuth call back token
-    create_pull_request(request.session['oauth'], autodo_prefix_branch_name, request)
+    create_file_commit(token, branch_name, request) # OAuth call back token
+    create_pull_request(token, autodo_prefix_branch_name, request)
     p.update()
-    return
+    return HttpResponse(res)
 
