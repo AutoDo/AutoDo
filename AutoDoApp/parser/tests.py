@@ -1,6 +1,7 @@
 from django.test import TestCase
 from AutoDoApp.parser.Parser import Parser
-
+import os
+from django.conf import settings
 
 class ParserTestCase(TestCase):
 
@@ -9,6 +10,9 @@ class ParserTestCase(TestCase):
         self.wrong_git_address = "https://jithub.com/JunoJunho/AutoDoTestApp"
         self.project_name = "AutoDoTestApp"
         self.p = Parser()
+        git_dir = os.path.join(settings.BASE_DIR, "git_project")
+        if not os.path.exists(git_dir):
+            os.mkdir(git_dir)
 
     def test_wrong_git_address_should_raise_value_error(self):
         self.assertRaises(ValueError, self.p.parse_project, self.wrong_git_address)
