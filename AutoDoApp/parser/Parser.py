@@ -17,6 +17,8 @@ class Parser(ParserCommunicator):
         self.instance_dict = {}  # key: class name, value: a list containing instance names inside the class
         self.variable_dict = {}  # key: instance name, value : a list containing invoked methods
         self.file_list = []
+        self.req_list = []
+        self.license = ""
 
     def task_request(self, project_id, user_id):
         raise NotImplementedError("Implement this method!")
@@ -46,10 +48,14 @@ class Parser(ParserCommunicator):
                 for invoked_method in self.instance_dict[instance_name]:
                     graph.append((caller_class_name, callee_class_name, invoked_method))
         name = "".join(git_url.split('/')[-1:])
-        tu = [graph, name, self.parse_api()]
+        tu = [graph, name, self.parse_api(), self.req_list, self.license]
         return tuple(tu)
 
     def __clone_repository(self, git_url):
+
+        if "github.com" not in git_url:
+            raise ValueError("Wrong Github Address!")
+
         git_dir = os.path.join(settings.BASE_DIR, "git_project")
         git_dir = os.path.join(git_dir, "".join(git_url.split('/')[-1:]))
         self.git_dir = git_dir
@@ -83,6 +89,10 @@ class Parser(ParserCommunicator):
             for f_name in file_list:  # Check suffix of python project
                 if f_name[-3:] == ".py":
                     tmp_list.append(f_name)
+                elif "requirement" in f_name and ".txt" in f_name:
+                    self.req_list = self.__parse_requirements(f_name)
+                elif "LICENSE" in f_name:
+                    self.license = self.__parse_license(f_name)
             if len(tmp_list) > 0:  # We will not add empty directory into the dictionary
                 dir_name = dir_name.replace("\\", "/")
                 self.dir_dict[dir_name] = tmp_list
@@ -184,6 +194,17 @@ class Parser(ParserCommunicator):
                 tokens = line.split("class")
                 cls_name = tokens[1].strip()
                 cls_name = cls_name.replace(":", "")
+
+    def __parse_requirements(self, f_name):
+        req_loc = os.path.join(self.git_dir, f_name)
+        f = open(req_loc, 'r')
+        req = f.readlines()
+        return req
+
+    def __parse_license(self, f_name):
+        li_loc = os.path.join(self.git_dir, f_name)
+        f = open(li_loc, 'r')
+        return f.readline()
 
     def prev_parse_project(self):
         raise NotImplementedError("Implement this method!")

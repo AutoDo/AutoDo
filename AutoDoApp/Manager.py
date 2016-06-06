@@ -40,7 +40,9 @@ class ManagerThread(object):
                 self.generator.generate_document(data=re[0],
                                                  name=re[1],
                                                  raw_api=re[2],
-                                                 desc=self.proj_desc)
+                                                 desc=self.proj_desc,
+                                                 licen=re[4],
+                                                 req=re[3])
                 break
         for t in self.threads:
             t.join()

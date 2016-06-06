@@ -9,7 +9,7 @@ from django.template import loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User
-from .models import Project
+from AutoDoApp.models import Project
 
 import os
 
@@ -75,12 +75,12 @@ def generate_document(request):
             proj_desc = url['desc']
             from AutoDoApp.Manager import ManagerThread
             m = ManagerThread()
+            p = Project.objects.filter(repository_url__exact=request.session['git_url']).first()
             m.put_request(req=request.session['git_url'], desc=proj_desc)
 
             import time
             time.sleep(10)  # Temporal time sleep
 
-            p = Project.objects.filter(repository_url__exact=request.session['git_url']).first()
             branch_id = p.branch_count
             autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
             branch_name = "refs/heads/" + autodo_prefix_branch_name
@@ -152,17 +152,25 @@ def github_info_parse(access_token, request):
         # print(item['html_url'])
         p = Project.objects.filter(repository_url__exact=item['html_url']).first()
         p_name = "".join(str(item['html_url']).split('/')[-1:])
+        try:
+            project_license = item['license']['name']
+            print(project_license)
+        except KeyError:
+            project_license = "No license"
+
         if p is None:
             p = Project()
             p.repository_url = item['html_url']
             p.repository_owner = item['owner']['login']
             p.description = p_name
             p.user = u
+            p.project_license = project_license
             p.save()
 
         temp_dict = {'project_url': str(item['html_url']),
                      'project_name': p_name,
-                     'project_desc': p.description}
+                     'project_desc': p.description,
+                     'project_license': project_license}
         project_list.append(temp_dict)
 
     request.session['email'] = email
