@@ -104,7 +104,6 @@ def oauth_callback(request):
     if type(project_list) == int and project_list == -1:
         return HttpResponseRedirect(reverse('login'))
     request.session['project_list'] = project_list
-
     return HttpResponseRedirect(reverse('main'))
 
 
