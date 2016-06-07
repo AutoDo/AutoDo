@@ -1,17 +1,9 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.conf import settings
+from django.template import loader
 from .models import Project
 from .models import User
-
-
-# Create your tests here.
-class BasicTestCase(TestCase):
-    def setUp(self):
-        pass
-
-    def test_should_pass(self):
-        self.assertEqual(True, True)
 
 
 # Test Cases for Django Database Model. Written by JS
@@ -43,34 +35,41 @@ class ViewTestCase(TestCase):
     def setUp(self):
         self.client = Client()
 
-    def test_hook_callback(self):
-        response = self.client.get("hook/")
-        #   Status Code Check
-        self.assertEqual(response.status_code, 200)
-
-    def test_oauth_callback(self):
-        response = self.client.get("callback/")
-        #   Status Code Check
-        self.assertEqual(response.status_code, 200)
-        #   Template Check
-        self.assertTemplateUsed(response, 'main.html')
-
-    def test_login_page_switch(self):
+    def test_login_status_code(self):
         response = self.client.get("/")
         #   Status Code Check
         self.assertEqual(response.status_code, 200)
-        #   Template Check
-        self.assertTemplateUsed(response, 'login.html')
-        #   Context value Check
-        self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
 
-    def test_main_rendering(self):
+    def test_login_template_switch(self):
+        response = self.client.get("/")
+        #   Template Check
+        self.assertTemplateUsed(response, 'AutoDoApp/login.html')
+
+    def test_login_context_content(self):
+        response = self.client.get("/")
+        #   Context value Check
+        self.assertEqual(response.context['client_id'], settings.GIT_HUB_URL)
+
+    def test_main_template_switch(self):
+        session = self.client.session
+        session['oauth'] = 'test_oauth'
+        session.save()
+        response = self.client.get("/main/")
+        #   Template Check
+        self.assertTemplateUsed(response, 'AutoDoApp/main.html')
+
+    def test_main_status_code(self):
+        session = self.client.session
+        session['oauth'] = 'test_oauth'
+        session.save()
         response = self.client.get("/main/")
         #   Status Code Check
-        #self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
-        self.assertTemplateUsed(response, 'login.html')
-        #   Template Check
-        self.assertTemplateUsed(response, 'main.html')
+    def test_main_context_content(self):
+        session = self.client.session
+        session['oauth'] = 'test_oauth'
+        session.save()
+        response = self.client.get("/main/")
         #   Context value Check
-        self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
+        self.assertEqual(response.context['client_id'], settings.GIT_HUB_URL)
