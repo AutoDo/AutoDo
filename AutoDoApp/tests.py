@@ -53,14 +53,14 @@ class ViewTestCase(TestCase):
         #   Status Code Check
         self.assertEqual(response.status_code, 200)
         #   Template Check
-        self.assertTemplateUsed(response, 'AutoDoApp/main.html')
+        self.assertTemplateUsed(response, 'main.html')
 
     def test_login_page_switch(self):
         response = self.client.get("/")
         #   Status Code Check
         self.assertEqual(response.status_code, 200)
         #   Template Check
-        self.assertTemplateUsed(response, 'AutoDoApp/login.html')
+        self.assertTemplateUsed(response, 'login.html')
         #   Context value Check
         self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
 
@@ -69,8 +69,8 @@ class ViewTestCase(TestCase):
         #   Status Code Check
         #self.assertEqual(response.status_code, 200)
 
-        self.assertTemplateUsed(response, 'AutoDoApp/login.html')
+        self.assertTemplateUsed(response, 'login.html')
         #   Template Check
-        self.assertTemplateUsed(response, 'AutoDoApp/main.html')
+        self.assertTemplateUsed(response, 'main.html')
         #   Context value Check
         self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
