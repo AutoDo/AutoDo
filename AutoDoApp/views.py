@@ -333,3 +333,13 @@ def hook_callback(request, *args, **kwargs):
     p.update()
     return HttpResponse(res)
 
+
+def hook_test(request):
+    template = loader.get_template('AutoDoApp/integration_test_page.html')
+    context = {
+        'client_id': settings.GIT_HUB_URL,
+        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    }
+
+    return HttpResponse(template.render(context=context, request=request))
+
