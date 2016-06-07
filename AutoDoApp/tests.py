@@ -44,12 +44,12 @@ class ViewTestCase(TestCase):
         self.client = Client()
 
     def test_hook_callback(self):
-        response = self.client.get("/hook/")
+        response = self.client.get("hook/")
         #   Status Code Check
         self.assertEqual(response.status_code, 200)
 
     def test_oauth_callback(self):
-        response = self.client.get("/callback/")
+        response = self.client.get("callback/")
         #   Status Code Check
         self.assertEqual(response.status_code, 200)
         #   Template Check
@@ -67,7 +67,9 @@ class ViewTestCase(TestCase):
     def test_main_rendering(self):
         response = self.client.get("/main/")
         #   Status Code Check
-        self.assertEqual(response.status_code, 200)
+        #self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(response, 'AutoDoApp/login.html')
         #   Template Check
         self.assertTemplateUsed(response, 'AutoDoApp/main.html')
         #   Context value Check
