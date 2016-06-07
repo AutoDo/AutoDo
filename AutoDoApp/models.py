@@ -8,6 +8,22 @@ class User(models.Model):  # Refactoring -> Change class name
     account_ID = models.CharField(max_length=200, default="none")
     access_token = models.CharField(max_length=200, default="none")
 
+    def __init__(self, email, account_ID):
+        if "@" not in email:
+            raise ValueError("Email should be well-formatted")
+        else:
+            self.email = email
+
+        if len(email) < 10:
+            raise ValueError("Email should have sufficient length")
+        else:
+            self.email = email
+
+        if len(account_ID) < 5:
+            raise ValueError("account ID should have more than 5 length")
+        else:
+            self.account_ID = account_ID
+
     # user_email = models.CharField(max_length=200, default="none")
     # repository_url = models.CharField(max_length=200)
     # repository_owner = models.CharField(max_length=200)
@@ -26,19 +42,28 @@ class Project(models.Model):
     description = models.TextField(null=True)
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     branch_count = models.IntegerField(default=0)
-    last_updated_date = models.DateTimeField(blank=True, null=True, default=timezone.now())
+    last_updated_date = models.DateTimeField(blank=True, null=True)
     project_license = models.CharField(max_length=200)
     is_enrolled = models.BooleanField(default=False)
 
     def update(self):
         self.last_updated_date = timezone.now()
-        self.branch_count = self.branch_count.__add__(1)
+        if type(self.branch_count) is int:
+            self.branch_count = self.branch_count.__add__(1)
+        else:
+            raise TypeError('Type Error')
         self.save()
 
     def enroll(self):
-        self.is_enrolled = True
-        self.save()
+        if type(self.is_enrolled) is bool:
+            self.is_enrolled = True
+            self.save()
+        else:
+            raise TypeError('Type Error')
 
     def desc_update(self, desc):
-        self.description = desc
-        self.save()
+        if type(self.description) is str and type(desc) is str:
+            self.description = desc
+            self.save()
+        else:
+            raise TypeError('Type Error')
