@@ -57,11 +57,11 @@ def main(request):
     template = loader.get_template('AutoDoApp/main.html')
     context = {
         'client_id': settings.GIT_HUB_URL
-        }
+    }
     return HttpResponse(template.render(
         context=context,
         request=request)
-        )
+    )
 
 
 @csrf_exempt
@@ -342,4 +342,16 @@ def hook_test(request):
     }
 
     return HttpResponse(template.render(context=context, request=request))
+
+
+def hook_process(request):
+    params = {
+        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    }
+    res = requests.put(url='https://api.github.com/authorizations',
+                       json=params)
+
+    print(res.json())
+
+    return HttpResponseRedirect(reverse('hook_test'))
 
