@@ -3,6 +3,7 @@ from AutoDoApp.parser.Parser import Parser
 import os
 from django.conf import settings
 
+
 class ParserTestCase(TestCase):
 
     def setUp(self):

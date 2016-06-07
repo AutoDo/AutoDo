@@ -134,10 +134,10 @@ def github_info_parse(access_token, request):
 
         u = User.objects.filter(email=email).first()
         if u is None:
-            u = User()
-            u.email = email
-            u.account_ID = request.session['user_name']
-            u.access_token = access_token
+            u = User(email=email,
+                     account_ID=request.session['user_name'])
+            # u.email = email
+            # u.account_ID = request.session['user_name']
             u.save()
     except KeyError:
         return -1

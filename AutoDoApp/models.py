@@ -8,6 +8,22 @@ class User(models.Model):  # Refactoring -> Change class name
     account_ID = models.CharField(max_length=200, default="none")
     access_token = models.CharField(max_length=200, default="none")
 
+    def __init__(self, email, account_ID):
+        if "@" not in email:
+            raise ValueError("Email should be well-formatted")
+        else:
+            self.email = email
+
+        if len(email) < 10:
+            raise ValueError("Email should have sufficient length")
+        else:
+            self.email = email
+
+        if len(account_ID) < 5:
+            raise ValueError("account ID should have more than 5 length")
+        else:
+            self.account_ID = account_ID
+
     # user_email = models.CharField(max_length=200, default="none")
     # repository_url = models.CharField(max_length=200)
     # repository_owner = models.CharField(max_length=200)
