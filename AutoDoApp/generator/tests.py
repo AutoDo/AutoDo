@@ -21,6 +21,12 @@ class GeneratorTestCase(TestCase):
         self.parsing_dir = os.path.join(settings.BASE_DIR, "parsing_result")
         if not os.path.exists(self.parsing_dir):
             os.mkdir(self.parsing_dir)
+
+        git_dir = os.path.join(settings.BASE_DIR, "git_project")
+        if not os.path.exists(git_dir):
+            os.mkdir(git_dir)
+
+
     #invalid wrong valid
     def test_invalid_input_graph(self):
         #result = self.p.parse_project(git_url=self.correct_git_address)
