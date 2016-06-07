@@ -58,10 +58,10 @@ class GeneratorTestCase(TestCase):
 
     def test_valid_readme(self):
         file_name = "TestValidGraph"
-        test_data = [("class A", "class A", "method1"), ("class B", "class 1", "method2"),
+        test_data = [("class A", "class A", "method1"), ("class B", "class A", "method2"),
                      ("class C", "class A", "method3")]
         self.test_readme.generate_graph(test_data, "TestValidGraph")
-        self.test_readme.generate_readme_md("TestValidReadme", "test", "test", [])
+        self.test_readme.generate_readme_md("TestValidGraph", "test", "test", [])
         self.assertTrue(os.path.isfile(os.path.join(self.parsing_dir,file_name)+".md"))
 
     def test_invalid_api(self):
@@ -77,4 +77,5 @@ class GeneratorTestCase(TestCase):
         #tu = [graph, name, self.parse_api(), self.req_list, self.license]
         self.test_document.generate_document(re[0],re[1],re[2],"desc", re[4],re[3])
         self.assertTrue(os.path.isfile(os.path.join(self.parsing_dir,self.project_name)+".md"))
+
 

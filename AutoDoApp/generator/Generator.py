@@ -1,6 +1,6 @@
 # This python module is for document generator module
 
-import pydotplus
+#import pydotplus
 import cloudinary.uploader
 import cloudinary.api
 
@@ -9,6 +9,8 @@ import cloudinary.uploader
 import cloudinary.api
 
 import os
+
+import graphviz
 from django.conf import settings
 #from django.contrib.sites import requests
 import requests
@@ -49,7 +51,8 @@ class Generator(GeneratorCommunicator):
 
 
 
-        readme_dir = self.png_dir + ".md"
+        readme_dir = os.path.join(self.png_dir, name) + ".md"
+
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
         '''
@@ -147,7 +150,8 @@ class Generator(GeneratorCommunicator):
         self.__generate_graph(data, name)
         return self.url
     def __generate_graph(self, data, name):
-        graph = pydotplus.Dot(graph_type="digraph")
+        graph = graphviz.Digraph(format="png")
+        #graph = pydotplus.Dot(graph_type="digraph")
 
         # validate data
         for i in range(len(data)):
@@ -157,27 +161,26 @@ class Generator(GeneratorCommunicator):
 
 
         # let's add the relationship between the king and vassals
-
-
         for i in range(len(data)):
-            edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
-            graph.add_edge(edge)
-
+            #edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
+            #graph.add_edge(edge)
+            graph.edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
         # ok, we are set, let's save our graph into a file
 
         self.png_dir = os.path.join(settings.BASE_DIR, "parsing_result")
-        self.png_dir = os.path.join(self.png_dir, name)
-        if os.path.isfile(self.png_dir + ".png"):
-            os.remove(self.png_dir + ".png")
+        #self.png_dir = os.path.join(self.png_dir, name)
+        if os.path.isfile(os.path.join(self.png_dir , name) +".png"):
+            os.remove(os.path.join(self.png_dir, name) + ".png")
 
-        graph.write_png(self.png_dir + '.png')
+        #graph.write_png(self.png_dir + '.png')
 
+        graph.render(filename=name, directory=self.png_dir, view=False,cleanup=True)
         cloudinary.config(
             cloud_name="jin8",
             api_key="179139842767459",
             api_secret="BtqQQ54EvWJ8U4TKePyUvFk8kkU"
         )
-        response = cloudinary.uploader.upload(self.png_dir + '.png', public_id=name)
+        response = cloudinary.uploader.upload(os.path.join(self.png_dir, name) + '.png', public_id=name)
         self.url = response['url']
         #print(self.url)
 
