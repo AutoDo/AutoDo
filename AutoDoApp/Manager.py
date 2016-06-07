@@ -44,5 +44,3 @@ class ManagerThread(object):
                                                  licen=re[4],
                                                  req=re[3])
                 break
-        for t in self.threads:
-            t.join()
