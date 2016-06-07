@@ -122,7 +122,7 @@ class Generator(GeneratorCommunicator):
                 elif title == "License":
                     readme.write(licen+"\n")
                     readme.write("***")
-                    print("license is added")
+                    #print("license is added")
                 readme.write("\n\n")
 
             readme.close()
@@ -139,8 +139,8 @@ class Generator(GeneratorCommunicator):
         for each_key in data:
             self.api[each_key] = []
             for item in data[each_key]:
-                print(each_key + " + " + item)
-                self.api[each_key].append(item)
+               # print(each_key + " + " + item)
+               self.api[each_key].append(item)
         # for i in range(len(data)):
         #     if not(data[i][0] in self.api):
         #         self.api[data[i][0]] = []
