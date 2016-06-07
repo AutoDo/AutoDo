@@ -1,4 +1,6 @@
 from django.test import TestCase
+from django.test.client import Client
+from django.conf import settings
 from .models import Project
 from .models import User
 
@@ -39,31 +41,34 @@ class ProjectModelTestCase(TestCase):
 class ViewTestCase(TestCase):
     # To be implemented
     def setUp(self):
-        pass
-
-    def test_create_hook(self):
-        pass
+        self.client = Client()
 
     def test_hook_callback(self):
-        pass
-
-    def test_create_file_commit(self):
-        pass
-
-    def test_create_a_branch(self):
-        pass
-
-    def test_generate_document(self):
-        pass
+        response = self.client.get("/hook/")
+        #   Status Code Check
+        self.assertEqual(response.status_code, 200)
 
     def test_oauth_callback(self):
-        pass
+        response = self.client.get("/callback/")
+        #   Status Code Check
+        self.assertEqual(response.status_code, 200)
+        #   Template Check
+        self.assertTemplateUsed(response, 'AutoDoApp/main.html')
 
-    def test_integration_process(self):
-        pass
+    def test_login_page_switch(self):
+        response = self.client.get("/")
+        #   Status Code Check
+        self.assertEqual(response.status_code, 200)
+        #   Template Check
+        self.assertTemplateUsed(response, 'AutoDoApp/login.html')
+        #   Context value Check
+        self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
 
-    def test_github_info_parse(self):
-        pass
-
-    def test_post_json(self):
-        pass
+    def test_main_rendering(self):
+        response = self.client.get("/main/")
+        #   Status Code Check
+        self.assertEqual(response.status_code, 200)
+        #   Template Check
+        self.assertTemplateUsed(response, 'AutoDoApp/main.html')
+        #   Context value Check
+        self.assertEqual(response.context['client_id'],settings.GIT_HUB_URL)
