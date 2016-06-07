@@ -282,9 +282,11 @@ p {
 .project .mdl-card__actions .mdl-textfield{
   padding-top:0px;
   width:100%;
-
 }
 
+.project .mdl-card_actions .mdl-textfield__label:after{
+  bottom:0 !important;
+}
 
 /* ========= General ==============*/
 .top0{
@@ -303,9 +305,6 @@ p {
       z-index: 900;
 }
 
-.mdl-textfield__label:after{
-  bottom:0 !important;
-}
 
 /* ========= button ==============*/
 .right .mdl-button{
