@@ -1,5 +1,6 @@
 from django.test import TestCase
 from .models import Project
+from .models import User
 
 
 # Create your tests here.
@@ -14,8 +15,9 @@ class BasicTestCase(TestCase):
 # Test Cases for Django Database Model. Written by JS
 class ProjectModelTestCase(TestCase):
     def setUp(self):
-        Project.objects.create(repository_url="obj1", description='before statement')
-        Project.objects.create(repository_url="obj2", branch_count=100, is_enrolled=False)
+        u = User.objects.create(email="test")
+        Project.objects.create(repository_url="obj1", description='before statement', user=u)
+        Project.objects.create(repository_url="obj2", branch_count=100, is_enrolled=False, user=u)
         pass
 
     def test_desc_update(self):
