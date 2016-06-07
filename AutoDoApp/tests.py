@@ -8,15 +8,11 @@ from .models import User
 
 # Test Cases for Django Database Model. Written by JS
 class ProjectModelTestCase(TestCase):
+
     def setUp(self):
-        self.correct_email = "test@test.com"
-        self.wrong_email = "abcd.com"
-        self.correct_account_ID = "test_account"
-        self.wrong_account_ID = " "
         u = User.objects.create(email="test")
         Project.objects.create(repository_url="obj1", description='before statement', user=u)
         Project.objects.create(repository_url="obj2", branch_count=100, is_enrolled=False, user=u)
-        pass
 
     def test_desc_update(self):
         obj1 = Project.objects.get(repository_url="obj1")
@@ -35,16 +31,26 @@ class ProjectModelTestCase(TestCase):
 
 
 class UserModelTestCase(TestCase):
+
     def setUp(self):
         self.correct_email = "test@test.com"
         self.wrong_email = "abcd.com"
+        self.wrong_length_email = "@"
         self.correct_account_ID = "test_account"
         self.wrong_account_ID = " "
 
     def test_wrong_email_should_raise_value_error(self):
-        kwargs = {"email": self.wrong_email,
-                  "account_ID": self.correct_account_ID}
-        self.assertRaises(ValueError, User.objects.create, self.wrong_email, self.correct_account_ID)
+        self.assertRaises(ValueError, User, self.wrong_email, self.correct_account_ID)
+
+    def test_wrong_length_email_should_raise_value_error(self):
+        self.assertRaises(ValueError, User, self.wrong_length_email, self.correct_account_ID)
+
+    def test_correct_email_and_account_ID_should_not_raise_value_error(self):
+        u = User(self.correct_email, self.correct_account_ID)
+        self.assertIsNotNone(u)
+
+    def test_wrong_account_ID_should_raise_value_error(self):
+        self.assertRaises(ValueError, User, self.correct_email, self.wrong_account_ID)
 
 
 class ViewTestCase(TestCase):

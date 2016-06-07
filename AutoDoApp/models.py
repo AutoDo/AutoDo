@@ -7,15 +7,19 @@ class User(models.Model):  # Refactoring -> Change class name
     email = models.CharField(max_length=200, default="none", primary_key=True)
     account_ID = models.CharField(max_length=200, default="none")
 
-    @classmethod
-    def create(self, email, account_ID):
+    def __init__(self, email, account_ID):
         if "@" not in email:
-            raise ValueError("Email shoule be well-formatted")
+            raise ValueError("Email should be well-formatted")
+        else:
+            self.email = email
+
+        if len(email) < 10:
+            raise ValueError("Email should have sufficient length")
         else:
             self.email = email
 
         if len(account_ID) < 5:
-            raise ValueError("Email should have more than 5 length")
+            raise ValueError("account ID should have more than 5 length")
         else:
             self.account_ID = account_ID
 
