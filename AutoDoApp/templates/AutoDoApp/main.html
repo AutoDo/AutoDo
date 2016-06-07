@@ -11,7 +11,13 @@
     <link rel='stylesheet' href='https://code.getmdl.io/1.1.3/material.indigo-pink.min.css'>
     <script defer src='https://code.getmdl.io/1.1.3/material.min.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js'></script>
-
+    <!--
+    <link rel='stylesheet' href='static/css/styles.css'>
+    <link rel='stylesheet' href='static/css/dialog-polyfill.css'>
+    <script src="static/js/main.js"></script>
+    <script src="static/js/dialog-polyfill.js"></script>
+    <script src="static/js/js.cookie.js"></script>
+    -->
 
     <link rel='stylesheet' href='{% static "AutoDoApp/css/styles.css" %}'>
     <link rel='stylesheet' href='{% static "AutoDoApp/css/dialog-polyfill.css" %}'>
@@ -35,6 +41,7 @@
             <!-- Navigation. We hide it in small screens. -->
             <nav class='mdl-navigation'>
                 <span>Welcome User</span>
+                <a class="mdl-navigation__link token-link" href=""> Token</a>
                 <a class='mdl-navigation__link' href=''>Link</a>
             </nav>
         </div>
@@ -115,12 +122,31 @@
                 </div>
             {% endfor %}
         </div>
+        <dialog id="dialog-token" class="mdl-dialog">
+            <div class="mdl-dialog__content">
+            <form>
+                <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" id="token">
+                <label class="mdl-textfield__label" for="token">Token...</label>
+                </div>
+                <div class="right">
+                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-save'>save</button>
+                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-cancel'>cancel</button>
+                </div>
+             </div>
 
-        <dialog id="dialog" class="mdl-dialog">
+            </form>
+
+        </dialog>
+
+        <dialog id="dialog-generate" class="mdl-dialog">
 
             <div class="mdl-dialog__content">
                 <p id="status">Generating a Document</p>
-                <div class="mdl-spinner mdl-js-spinner is-active"></div>
+                <div id="spinner" class="mdl-spinner mdl-js-spinner is-active"></div>
+                <div class="right">
+                    <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate-ok'>okay</button>
+                </div>
 
             </div>
 
@@ -139,19 +165,44 @@
             }
         });
     });
-    var dialog = document.querySelector('dialog');
-    if (! dialog.showModal) {
-        dialogPolyfill.registerDialog(dialog);
+    var dialog_generate = document.querySelector('#dialog-generate');
+    var dialog_token = document.querySelector('#dialog-token');
+    if (! dialog_generate.showModal) {
+        dialogPolyfill.registerDialog(dialog_generate);
     }
+    if (! dialog_token.showModal){
+        dialogPolyfill.registerDialog(dialog_token);
+    }
+
+    $('.token-link').click(function(event){
+        event.preventDefault();
+        // alert("token link clicked");
+        dialog_token.showModal();
+    });
+    $('.token-cancel').click(function(event){
+        event.preventDefault();
+        //alert("clicked closed");
+        console.log("token closed");
+
+        dialog_token.close();
+    });
+    $('.token-save').click(function(event){
+        event.preventDefault();
+
+    });
+     $(".generate-ok").click(function(event){
+        event.preventDefault();
+       dialog_generate.close();
+    });
+
     $('body').on("click",".generate", function(event){
-        {#        alert("generate");#}
+        console.log("generate clicked");
+        event.preventDefault();
         var card = $(this).parent('div').parent('div').parent('div');
         var url = card.children('h5').first().children('a').first().text();
         var project_description = card.children('#desc').first().children('div').first().children('p').first().text();
 
         generateAjax(url, project_description);
-        {#        alert("url: "+ url);#}
-        {#        dialog.showModal();#}
     });
 
     function generateAjax(url, project_description) {
@@ -162,8 +213,7 @@
                 "desc": project_description}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
-{#                alert(project_description);#}
-                dialog.showModal();
+                dialog_generate.showModal();
             },
             error: function (result) {
                 $("#status").text("Failed Generating a Document");
@@ -174,7 +224,11 @@
 
             },
             complete: function (result) {
-                dialog.close();
+               $("#spinner").hide();
+               $(".generate-ok").show();
+
+                //dialog_generate.close();
+                //dialog_generate.close();
             },
             timeout: 10000 //10 second
         });
