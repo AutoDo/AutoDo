@@ -26,16 +26,6 @@ import requests
 '''
 
 
-def index(request, access_token=""):
-    template = loader.get_template('AutoDoApp/index.html')
-    context = {
-        'access_token': access_token,
-        'client_id': settings.GIT_HUB_URL,
-    }
-
-    return HttpResponse(template.render(context=context, request=request))
-
-
 def login(request):
     template = loader.get_template('AutoDoApp/login.html')
     context = {
@@ -143,8 +133,7 @@ def github_info_parse(access_token, request):
         print(str_json['login'])
         u = User.objects.filter(email__exact=email).first()
         if u is None:
-            u = User(email=email,
-                    account_ID=request.session['user_name'])
+            u = User(email=email, account_ID=request.session['user_name'])
             # u.access_token = "test_token"
             # u.email = email
             # u.account_ID = request.session['user_name']
@@ -247,12 +236,6 @@ def create_file_commit(access_token, branch_name, request):
     res = requests.put(url=put_url,
                        params=condition,
                        json=params)
-
-
-def get_hook_list(access_token, git_info):
-    new_condition = {"access_token": access_token}
-    string = requests.get(settings.GITHUB_API_URL + '/hooks', new_condition)
-    hook_json = string.json()
 
 
 def post_json(code):
