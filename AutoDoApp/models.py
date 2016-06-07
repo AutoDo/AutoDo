@@ -9,6 +9,7 @@ class User(models.Model):  # Refactoring -> Change class name
     access_token = models.CharField(max_length=200, default="none")
 
     def __init__(self, email, account_ID):
+        super(User, self).__init__()
         if "@" not in email:
             raise ValueError("Email should be well-formatted")
         else:

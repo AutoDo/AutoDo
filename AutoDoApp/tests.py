@@ -10,7 +10,8 @@ from .models import User
 class ProjectModelTestCase(TestCase):
 
     def setUp(self):
-        u = User.objects.create(email="test")
+        u = User(email="test@test.com", account_ID="test_account")
+        u.access_token = "token"
         Project.objects.create(repository_url="obj1", description='before statement', user=u)
         Project.objects.create(repository_url="obj2", branch_count=100, is_enrolled=False, user=u)
         self.wrong_type_int_to_bool = False
