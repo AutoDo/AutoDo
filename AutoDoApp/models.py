@@ -8,8 +8,11 @@ class User(models.Model):  # Refactoring -> Change class name
     account_ID = models.CharField(max_length=200, default="none")
     access_token = models.CharField(max_length=200, default="none")
 
-    def __init__(self, email, account_ID):
-        super(User, self).__init__()
+    def __init__(self, email, account_ID, *args, **kwargs):
+        # print(**kwargs)
+        # email = kwargs['email']
+        # account_ID = kwargs['account_ID']
+        models.Model.__init__(self)
         if "@" not in email:
             raise ValueError("Email should be well-formatted")
         else:

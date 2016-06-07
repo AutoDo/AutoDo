@@ -57,11 +57,11 @@ def main(request):
     template = loader.get_template('AutoDoApp/main.html')
     context = {
         'client_id': settings.GIT_HUB_URL
-        }
+    }
     return HttpResponse(template.render(
         context=context,
         request=request)
-        )
+    )
 
 
 @csrf_exempt
@@ -100,6 +100,16 @@ def oauth_callback(request):
     code = request.GET['code']
     res = post_json(code)
     request.session['oauth'] = res  # Adding session
+    # params = {
+    #     'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    # }
+    # condition = {"access_token": res,
+    #              "clients": settings.GITHUB_OAUTH_CLIENT_ID}
+    # res = requests.put(url='https://api.github.com/authorizations/clients/' + settings.GITHUB_OAUTH_CLIENT_ID,
+    #                    params=condition,
+    #                    json=params)
+    # print(res.json())
+    #
     project_list = github_info_parse(res, request)
     if type(project_list) == int and project_list == -1:
         return HttpResponseRedirect(reverse('login'))
@@ -131,15 +141,17 @@ def github_info_parse(access_token, request):
         string = requests.get('https://api.github.com/user', new_condition)
         str_json = string.json()
         request.session['user_name'] = str_json['login']
-
-        u = User.objects.filter(email=email).first()
+        print(str_json['login'])
+        u = User.objects.filter(email__exact=email).first()
         if u is None:
             u = User(email=email,
-                     account_ID=request.session['user_name'])
+                    account_ID=request.session['user_name'])
+            # u.access_token = "test_token"
             # u.email = email
             # u.account_ID = request.session['user_name']
             u.save()
     except KeyError:
+        print("key_error")
         return -1
     project_list = []
 
@@ -332,4 +344,26 @@ def hook_callback(request, *args, **kwargs):
     create_pull_request(token, autodo_prefix_branch_name, request)
     p.update()
     return HttpResponse(res)
+
+
+def hook_test(request):
+    template = loader.get_template('AutoDoApp/integration_test_page.html')
+    context = {
+        'client_id': settings.GIT_HUB_URL,
+        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    }
+
+    return HttpResponse(template.render(context=context, request=request))
+
+
+def hook_process(request):
+    params = {
+        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    }
+    res = requests.put(url='https://api.github.com/authorizations',
+                       json=params)
+
+    print(res.json())
+
+    return HttpResponseRedirect(reverse('hook_test'))
 

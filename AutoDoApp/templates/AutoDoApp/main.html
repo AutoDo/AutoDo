@@ -40,8 +40,10 @@
             <div class='mdl-layout-spacer'></div>
             <!-- Navigation. We hide it in small screens. -->
             <nav class='mdl-navigation'>
-                <span>Welcome User</span>
+
+                <span>Welcome {{ request.session.user_name }}</span>
                 <a class="mdl-navigation__link token-link" href=""> Token</a>
+
                 <a class='mdl-navigation__link' href=''>Link</a>
             </nav>
         </div>
@@ -133,10 +135,10 @@
                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-save'>save</button>
                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-cancel'>cancel</button>
                 </div>
-             </div>
+
 
             </form>
-
+            </div>
         </dialog>
 
         <dialog id="dialog-generate" class="mdl-dialog">
