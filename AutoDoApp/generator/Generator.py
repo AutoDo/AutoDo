@@ -10,7 +10,8 @@ import cloudinary.api
 
 import os
 from django.conf import settings
-
+#from django.contrib.sites import requests
+import requests
 from AutoDoApp.generator.GeneratorCommunicator import GeneratorCommunicator
 
 
@@ -23,14 +24,31 @@ class Generator(GeneratorCommunicator):
         self.api = {}
 
     def generate_document(self, data, name, raw_api, desc, licen, req):
+
         self.__generate_graph(data, name)
         self.__generate_api(raw_api)
         self.__generate_readme_md(name, desc, licen, req)
 
+
+
     def send_complete_notification(self):
         raise NotImplementedError("You must implement this methods!")
 
+    def generate_readme_md(self, name, desc, licen,req):
+        self.__generate_readme_md(name,desc,licen,req)
+
     def __generate_readme_md(self, name, desc, licen, req):
+        if type(name) is not str:
+            raise TypeError("Wrong name type: it needs to be str type")
+        if type(desc) is not str:
+            raise TypeError("Wrong desc type: it needs to be str type")
+        if type(licen) is not str:
+            raise TypeError("Wrong licen type: it needs to be str type")
+        if type(req) is not list:
+            raise TypeError("Wrong req type: it needs to be list type")
+
+
+
         readme_dir = self.png_dir + ".md"
         if os.path.isfile(readme_dir + ".md"):
             os.remove(readme_dir + ".md")
@@ -68,7 +86,7 @@ class Generator(GeneratorCommunicator):
                     readme.write("These are the requirements needs to be install "
                                  "in order to execute this project: \n\n")
                     if len(req) < 1:
-                        print("No req")
+                        #print("No req")
                         readme.write("```\n"+"No requirements"+"\n```"+"\n")
                     else:
                         for each in req:
@@ -89,11 +107,15 @@ class Generator(GeneratorCommunicator):
                         readme.write("\n")
                     readme.write("***")
                 elif title == "Dependency graph":
-                    # graph file name
-                    readme.write("<p align='center'>")
-                    readme.write("<img src='" + self.url + "'/>")
-                    readme.write("</p>\n")
-                    readme.write("***")
+                    request = requests.get(self.url)
+                    if(request.status_code == 200):
+                        # graph file name
+                        readme.write("<p align='center'>")
+                        readme.write("<img src='" + self.url + "'/>")
+                        readme.write("</p>\n")
+                        readme.write("***")
+                    else:
+                        raise ValueError("URL does not exist in cloudinary")
                 elif title == "License":
                     readme.write(licen+"\n")
                     readme.write("***")
@@ -104,7 +126,10 @@ class Generator(GeneratorCommunicator):
         # raise NotImplementedError("You must implement this methods!")
 
     def generate_api(self, data):
-        self.__generate_api(data)
+        if type(data) is dict:
+            self.__generate_api(data)
+        else:
+            raise TypeError("Wrong data type: it needs to be dict")
 
     def __generate_api(self, data):  # data -> dictionary
         self.api = {}
@@ -120,11 +145,20 @@ class Generator(GeneratorCommunicator):
 
     def generate_graph(self, data, name):
         self.__generate_graph(data, name)
-
+        return self.url
     def __generate_graph(self, data, name):
         graph = pydotplus.Dot(graph_type="digraph")
 
+        # validate data
+        for i in range(len(data)):
+            if len(data[i]) < 3: # each data has to contain (node, node, edge)
+                raise ValueError("Wrong input for graph")
+
+
+
         # let's add the relationship between the king and vassals
+
+
         for i in range(len(data)):
             edge = pydotplus.Edge(data[i][0], data[i][1], label=data[i][2], minlen='7')
             graph.add_edge(edge)
@@ -145,7 +179,7 @@ class Generator(GeneratorCommunicator):
         )
         response = cloudinary.uploader.upload(self.png_dir + '.png', public_id=name)
         self.url = response['url']
-        print(self.url)
+        #print(self.url)
 
 
 if __name__ == "__main__":
