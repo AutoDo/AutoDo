@@ -3,6 +3,7 @@
  */
 $(document).ready(function() {
   $("body").on("click",".edit",function(event) {
+      alert("edit");
     event.preventDefault();
     var edit = $(this); 
     var save =edit.next();
@@ -23,6 +24,7 @@ $(document).ready(function() {
   });
     
   $('body').on("click",".save",function(event) {
+      alert("save");
     event.preventDefault();
     var save = $(this);
     var edit = $(this).prev();
@@ -60,7 +62,7 @@ $(document).ready(function() {
                      "<div class='mdl-cell mdl-cell--6-col'>"+
                      "<label class='mdl-switch mdl-js-switch mdl-js-ripple-effect'>"+
                      "<span class='mdl-switch__label'>Update on Every Commit</span>"+
-                     "<input type='checkbox'  class='mdl-switch__input' checked>"+
+                     "<input type='checkbox'  class='mdl-switch__input'>"+
                      "</label>"+
                      "</div>"+
                      "<div class='mdl-cell mdl-cell--6-col right'>"+

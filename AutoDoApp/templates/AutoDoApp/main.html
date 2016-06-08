@@ -11,7 +11,7 @@
     <link rel='stylesheet' href='https://code.getmdl.io/1.1.3/material.indigo-pink.min.css'>
     <script defer src='https://code.getmdl.io/1.1.3/material.min.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js'></script>
-    <!--
+<!--
     <link rel='stylesheet' href='static/css/styles.css'>
     <link rel='stylesheet' href='static/css/dialog-polyfill.css'>
     <script src="static/js/main.js"></script>
@@ -24,7 +24,6 @@
     <script src="{% static 'AutoDoApp/js/main.js' %}"></script>
     <script src="{% static 'AutoDoApp/js/dialog-polyfill.js' %}"></script>
     <script src="{% static 'AutoDoApp/js/js.cookie.js' %}"></script>
-
 
     <title>AutoDo</title>
 </head>
@@ -65,7 +64,7 @@
                             <div class='mdl-cell mdl-cell--6-col'>
                                 <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect'>
                                     <span class='mdl-switch__label'>Update on Every Commit</span>
-                                    <input type='checkbox' class='mdl-switch__input' checked>
+                                    <input type='checkbox' class='mdl-switch__input'>
                                 </label>
                             </div>
                             <div class='mdl-cell mdl-cell--6-col right'>
@@ -127,13 +126,17 @@
         <dialog id="dialog-token" class="mdl-dialog">
             <div class="mdl-dialog__content">
             <form>
-                <div class="mdl-textfield mdl-js-textfield">
+                <div class="mdl-textfield mdl-js-textfield token-input">
                 <input class="mdl-textfield__input" type="text" id="token">
                 <label class="mdl-textfield__label" for="token">Token...</label>
                 </div>
+                <div id="spinner-token" class="mdl-spinner mdl-js-spinner is-active" style="display:none;"></div>
+                <p id="token-result" style="display:none;"> Complete saving </p>
+
                 <div class="right">
                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-save'>save</button>
                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-cancel'>cancel</button>
+                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect token-done' style="display:none;">done</button>
                 </div>
 
 
@@ -145,7 +148,7 @@
 
             <div class="mdl-dialog__content">
                 <p id="status">Generating a Document</p>
-                <div id="spinner" class="mdl-spinner mdl-js-spinner is-active"></div>
+                <div id="spinner-generate" class="mdl-spinner mdl-js-spinner is-active"></div>
                 <div class="right">
                     <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate-ok'>okay</button>
                 </div>
@@ -190,8 +193,50 @@
     });
     $('.token-save').click(function(event){
         event.preventDefault();
+        $("#spinner-token").show();
+        $(".token-input").hide();
+        $(".token-cancel").hide();
+        $(".token-save").hide();
+
+
+        //ajax
+
+         $.ajax({
+            url: "../generate/",
+            type: "POST",
+            data: JSON.stringify({"github_url": url,
+                "desc": project_description}),
+            contentType: 'application/json; charset=utf-8',
+            beforeSend: function (xhr) {
+                dialog_generate.showModal();
+            },
+            error: function (result) {
+
+            },
+            success: function (result) {
+
+            },
+            complete: function (result) {
+               $("#spinner-token").hide();
+               $("#token-result").show();
+               $('.token-done').show();
+
+                //dialog_generate.close();
+                //dialog_generate.close();
+            },
+            timeout: 10000 //10 second
+        });
+
+
+
 
     });
+
+    $('.token-done').click(function(event){
+        event.preventDefault();
+        dialog_token.close();
+    });
+
      $(".generate-ok").click(function(event){
         event.preventDefault();
        dialog_generate.close();
@@ -226,7 +271,7 @@
 
             },
             complete: function (result) {
-               $("#spinner").hide();
+               $("#spinner-generate").hide();
                $(".generate-ok").show();
 
                 //dialog_generate.close();
