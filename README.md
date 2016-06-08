@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/AutoDo/AutoDo.svg?branch=develop)](https://travis-ci.org/AutoDo/AutoDo)
+[![Coverage Status](https://coveralls.io/repos/github/JunoJunho/AutoDo/badge.svg?branch=develop)](https://coveralls.io/github/JunoJunho/AutoDo?branch=develop)
 
 # AutoDo
 
