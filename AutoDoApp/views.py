@@ -262,7 +262,7 @@ def create_pull_request(access_token, branch_name, request):
     print(res)
 
 
-def hook_process(request):
+def hook_creation_process(request):
     if request.is_ajax():
         if request.method == "POST":
             _data = request.body.decode('utf-8')
@@ -321,7 +321,7 @@ def hook_callback(request, *args, **kwargs):
     create_a_branch(access_token=token,
                     branch_name=branch_name,
                     request=request)
-    create_file_commit(token, branch_name, request) # OAuth call back token
+    create_file_commit(token, branch_name, request)  # OAuth call back token
     create_pull_request(token, autodo_prefix_branch_name, request)
     p.update()
     return HttpResponse(res)
@@ -348,3 +348,17 @@ def hook_process(request):
 
     return HttpResponseRedirect(reverse('hook_test'))
 
+
+@csrf_exempt
+def token_save_process(request):
+    if request.is_ajax():
+        if request.method == "POST":
+            _data = request.body.decode('utf-8')
+            json_data = json.loads(_data)
+            token_value = json_data['token']
+            token_value = token_value.strip()
+            u = User.objects.filter(account_ID__exact=request.session['user_name']).first()
+            u.access_token = token_value
+            u.save()
+
+    return HttpResponse(json.dumps({'success': True}), content_type='application/json')

@@ -198,33 +198,29 @@
         $(".token-cancel").hide();
         $(".token-save").hide();
 
-
+        var token_val = $("#token").val();
         //ajax
 
          $.ajax({
-            url: "../generate/",
+            url: "../token_update/",
             type: "POST",
-            data: JSON.stringify({"github_url": url,
-                "desc": project_description}),
+            data: JSON.stringify({"token": token_val}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
-                dialog_generate.showModal();
+{#                dialog_token.showModal();#}
             },
             error: function (result) {
 
             },
             success: function (result) {
-
+                $("#spinner-token").hide();
+                $("#token-result").show();
             },
             complete: function (result) {
-               $("#spinner-token").hide();
-               $("#token-result").show();
                $('.token-done').show();
-
                 //dialog_generate.close();
                 //dialog_generate.close();
-            },
-            timeout: 10000 //10 second
+            }
         });
 
 
