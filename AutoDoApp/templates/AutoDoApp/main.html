@@ -17,7 +17,7 @@
     <script src="static/js/main.js"></script>
     <script src="static/js/dialog-polyfill.js"></script>
     <script src="static/js/js.cookie.js"></script>
-    -->
+-->
 
     <link rel='stylesheet' href='{% static "AutoDoApp/css/styles.css" %}'>
     <link rel='stylesheet' href='{% static "AutoDoApp/css/dialog-polyfill.css" %}'>
@@ -59,7 +59,7 @@
             {% for item in request.session.project_list %}
                 <div class='mdl-card mdl-shadow--2dp'>
                     <div class='mdl-card__supporting-text'>
-                        <h5> {{ item.project_name }} &nbsp; <a href="{{ item.project_url }}">{{ item.project_url }}</a></h5>
+                        <h5> <span>{{ item.project_name }}</span> &nbsp; <a href="{{ item.project_url }}">{{ item.project_url }}</a></h5>
                         <div class='mdl-grid'>
                             <div class='mdl-cell mdl-cell--6-col'>
                                 <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect'>
@@ -68,7 +68,7 @@
                                 </label>
                             </div>
                             <div class='mdl-cell mdl-cell--6-col right'>
-                                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect refresh'>
+                                <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect apply'>
                                     Apply Setting<i class='material-icons'>autorenew</i>
                                 </button>
 
@@ -123,6 +123,15 @@
                 </div>
             {% endfor %}
         </div>
+
+        <dialog id="dialog-setting" class="mdl-dialog">
+            <div class="mdl-dialog_content">
+                <p><span id="project-name"></span> is Changed!</p>
+            </div>
+            <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect setting-done'>done</button>
+
+        </dialog>
+
         <dialog id="dialog-token" class="mdl-dialog">
             <div class="mdl-dialog__content">
             <form>
@@ -172,12 +181,31 @@
     });
     var dialog_generate = document.querySelector('#dialog-generate');
     var dialog_token = document.querySelector('#dialog-token');
+    var dialog_setting = document.querySelector('#dialog-setting');
     if (! dialog_generate.showModal) {
         dialogPolyfill.registerDialog(dialog_generate);
     }
     if (! dialog_token.showModal){
         dialogPolyfill.registerDialog(dialog_token);
     }
+
+    if(! dialog_token.showModal){
+        dialogPolyfill.registerDialog(dialog_setting);
+    }
+
+    $('body').on('click','.apply', function(event){
+
+        event.preventDefault();
+        var name=$(this).parent('div').parent('div').parent('div').children('h5').children('span').first().text();
+        $('#project-name').text(name);
+        dialog_setting.showModal();
+    });
+
+    $('.setting-done').click(function(event){
+       event.preventDefault();
+        dialog_setting.close();
+    });
+
 
     $('.token-link').click(function(event){
         event.preventDefault();
@@ -207,7 +235,6 @@
             data: JSON.stringify({"token": token_val}),
             contentType: 'application/json; charset=utf-8',
             beforeSend: function (xhr) {
-{#                dialog_token.showModal();#}
             },
             error: function (result) {
 
