@@ -126,7 +126,7 @@
 
         <dialog id="dialog-setting" class="mdl-dialog">
             <div class="mdl-dialog_content">
-                <p><span id="project-name"></span> is Changed!</p>
+                <p><span id="project-name"></span> setting is changed!</p>
             </div>
             <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect setting-done'>done</button>
 
@@ -198,7 +198,25 @@
         event.preventDefault();
         var name=$(this).parent('div').parent('div').parent('div').children('h5').children('span').first().text();
         $('#project-name').text(name);
-        dialog_setting.showModal();
+
+        $.ajax({
+            url: "../hook_create/",
+            type: "POST",
+            data: JSON.stringify({"project_name": name}),
+            contentType: 'application/json; charset=utf-8',
+            beforeSend: function (xhr) {
+            },
+            error: function (result) {
+
+            },
+            success: function (result) {
+                dialog_setting.showModal();
+            },
+            complete: function (result) {
+            }
+        });
+
+
     });
 
     $('.setting-done').click(function(event){
