@@ -23,8 +23,8 @@ class User(models.Model):  # Refactoring -> Change class name
         else:
             self.email = email
 
-        if len(account_ID) < 5:
-            raise ValueError("account ID should have more than 5 length")
+        if len(account_ID) < 4:
+            raise ValueError("account ID should have more than 4 length")
         else:
             self.account_ID = account_ID
 
