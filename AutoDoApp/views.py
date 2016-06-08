@@ -107,20 +107,6 @@ def oauth_callback(request):
     return HttpResponseRedirect(reverse('main'))
 
 
-def integration_process(request):
-    from AutoDoApp.Manager import ManagerThread
-    m = ManagerThread()
-    m.put_request(req=request.session['git_url'])
-
-    import time
-    time.sleep(10)  # Temporal time sleep
-
-    create_a_branch(access_token=request.session['oauth'], branch_name="refs/heads/tb1")
-    create_file_commit(request.session['oauth'], "refs/heads/tb1")
-    create_pull_request(request.session['oauth'], "tb1")
-    return HttpResponseRedirect(reverse('index', kwargs={'access_token': request.session['oauth']}))
-
-
 def github_info_parse(access_token, request):
     new_condition = {"access_token": access_token}
     string = requests.get('https://api.github.com/user/emails', new_condition)
@@ -276,7 +262,19 @@ def create_pull_request(access_token, branch_name, request):
     print(res)
 
 
-def create_hook(access_token):
+def hook_process(request):
+    if request.is_ajax():
+        if request.method == "POST":
+            _data = request.body.decode('utf-8')
+            project_name = json.loads(_data)
+            project_name = project_name['project_name']
+            create_hook(access_token=request.session['oauth'],
+                        request=request,
+                        project_name=project_name)
+    return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+
+
+def create_hook(access_token, request, project_name):
     import json
     import urllib.request
 
@@ -289,9 +287,10 @@ def create_hook(access_token):
                       }
 
     params = json.dumps(new_conditions).encode('utf-8')
-    print(params)
-    git_api_url = settings.GITHUB_API_URL + "/hooks"
-    req = urllib.request.Request(git_api_url, params)
+    # print(params)
+    req_url = "https://github.com/repos/" + request.session['user_name'] + "/" + project_name +\
+              "/hooks"
+    req = urllib.request.Request(req_url, params)
     req.add_header("content-type", "application/json")
     req.add_header("authorization", "token " + access_token)
     response = urllib.request.urlopen(req)

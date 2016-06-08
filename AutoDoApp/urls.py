@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'callback/', views.oauth_callback, name='callback'),
     url(r'code/', views.oauth_callback, name='code'),
     url(r'hook/', views.hook_callback, name='hook'),
+    url(r'hook_create/', views.hook_process, name='hook_create'),
     url(r'hook_int/', views.hook_test, name='hook_test'),
     url(r'hook_process/', views.hook_process, name='hook_process'),
 
