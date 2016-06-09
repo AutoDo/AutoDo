@@ -77,9 +77,12 @@ class Parser(ParserCommunicator):
         origin.fetch()
         try:
             for each in origin.refs:
-                if 'master' in each:
+                if 'master' in str(each):
                     origin.pull(each.remote_head)
+                    print("found master!")
+                    break
         except TypeError:
+            print("Tpye Error")
             origin.pull(origin.refs[0].remote_head)
 
     def __parse_directory_structure(self):
