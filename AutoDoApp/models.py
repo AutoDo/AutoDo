@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+from django.utils import timezone
 
 class User(models.Model):  # Refactoring -> Change class name
 
@@ -51,7 +51,8 @@ class Project(models.Model):
     is_enrolled = models.BooleanField(default=False)
 
     def update(self):
-        self.last_updated_date = timezone.now()
+        self.last_updated_date = timezone.localtime(timezone.now())
+        print(self.last_updated_date)
         if type(self.branch_count) is int:
             self.branch_count = self.branch_count.__add__(1)
         else:

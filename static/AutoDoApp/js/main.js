@@ -3,7 +3,6 @@
  */
 $(document).ready(function() {
   $("body").on("click",".edit",function(event) {
-      alert("edit");
     event.preventDefault();
     var edit = $(this); 
     var save =edit.next();
@@ -24,7 +23,6 @@ $(document).ready(function() {
   });
     
   $('body').on("click",".save",function(event) {
-      alert("save");
     event.preventDefault();
     var save = $(this);
     var edit = $(this).prev();

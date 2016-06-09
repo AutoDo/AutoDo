@@ -75,7 +75,12 @@ class Parser(ParserCommunicator):
         repo = git.Repo.init(git_dir)
         origin = repo.create_remote('origin', git_url)
         origin.fetch()
-        origin.pull(origin.refs[0].remote_head)
+        try:
+            for each in origin.refs:
+                if 'master' in each:
+                    origin.pull(each.remote_head)
+        except TypeError:
+            origin.pull(origin.refs[0].remote_head)
 
     def __parse_directory_structure(self):
         # Root directory setup

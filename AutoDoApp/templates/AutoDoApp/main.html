@@ -76,7 +76,7 @@
                         </div>
                         <div class='mdl-grid'>
                             <div class='mdl-cell mdl-cell--6-col'>
-                                Recent Update &nbsp; 2016.05.27
+                                Recent Update &nbsp; {{ item.project_last_update }}
                             </div>
                             <div class='mdl-cell mdl-cell--6-col right'>
                                 <button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect generate'>
@@ -103,7 +103,7 @@
                         -->
 
 
-                        <div class='mdl-card__actions mdl-card--border'>
+                        <div class='mdl-card__actions mdl-card--border' id="desc">
                             <div class='mdl-grid p0'>
                                <div class="mdl-cell mdl-cell--6-col p0">
                                    <h6>Introduction</h6>
@@ -288,8 +288,7 @@
         event.preventDefault();
         var card = $(this).parent('div').parent('div').parent('div');
         var url = card.children('h5').first().children('a').first().text();
-        var project_description = card.children('#desc').first().children('div').first().children('p').first().text();
-
+        var project_description = card.find('p').first().text();
         generateAjax(url, project_description);
     });
 
@@ -304,7 +303,7 @@
                 dialog_generate.showModal();
             },
             error: function (result) {
-                $("#status").text("Failed Generating a Document");
+                $("#status").text("Completed Generating a Document");
 
             },
             success: function (result) {

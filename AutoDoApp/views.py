@@ -69,7 +69,7 @@ def generate_document(request):
             m.put_request(req=request.session['git_url'], desc=proj_desc)
 
             import time
-            time.sleep(10)  # Temporal time sleep
+            time.sleep(9)  # Temporal time sleep
 
             branch_id = p.branch_count
             autodo_prefix_branch_name = "AutoDo_" + str(branch_id)
@@ -79,7 +79,7 @@ def generate_document(request):
                             branch_name=branch_name,
                             user_name=request.session['user_name'],
                             project_name=request.session['project_name'])
-            create_file_commit(request.session['oauth'], branch_name, request['user_name'],
+            create_file_commit(request.session['oauth'], branch_name, request.session['user_name'],
                                request.session['project_name'])
             create_pull_request(request.session['oauth'], autodo_prefix_branch_name,
                                 request.session['user_name'], request.session['project_name'])
@@ -147,10 +147,21 @@ def github_info_parse(access_token, request):
             p.project_license = project_license
             p.save()
 
+        try:
+            # p.last_updated_date
+            from dateutil import tz
+            utc = p.last_updated_date.replace(tzinfo=tz.gettz('UTC'))
+            last_update_time = utc.astimezone(tz.gettz('Asia/Seoul')).strftime('%Y-%m-%d %H:%M')
+        except ValueError:
+            last_update_time = "No Update"
+        except AttributeError:
+            last_update_time = "No Update"
+
         temp_dict = {'project_url': str(item['html_url']),
                      'project_name': p_name,
                      'project_desc': p.description,
-                     'project_license': project_license}
+                     'project_license': project_license,
+                     'project_last_update': last_update_time}
         project_list.append(temp_dict)
 
     request.session['email'] = email

@@ -21,3 +21,4 @@ pyparsing==2.1.4
 requests
 cloudinary==1.3.2
 graphviz==0.4.10
+python-dateutil
