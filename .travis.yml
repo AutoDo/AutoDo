@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.4"
+# command to install dependencies
+install:
+- "sudo apt-get update"
+- "sudo apt-get install graphviz"
+- "pip install -r requirements.txt"
+- "pip install coveralls"
+# command to run tests
+script:
+- "python manage.py makemigrations"
+- "python manage.py migrate"
+- "coverage run --source=. manage.py test"
+after_success:
+- "coveralls"

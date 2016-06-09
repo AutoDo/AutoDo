@@ -1,0 +1,1 @@
+from AutoDoApp.parser.ParserCommunicator import ParserCommunicator
