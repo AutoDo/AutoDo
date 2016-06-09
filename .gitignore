@@ -1,3 +1,6 @@
+/logs
+/Scripts
+/AutoDoApp/migrations
 # Created by https://www.gitignore.io/api/python,pycharm
 
 ### Python ###
@@ -300,3 +303,5 @@ AutoDoApp/migrations/
 .idea/
 /git_project/
 /parsing_result/
+/git_project/
+/TestInvalidReadme.md
